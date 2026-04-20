@@ -2,89 +2,146 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Navigation</title>
+  <title>ระบบนำทาง</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 500px;
+      font-family: system-ui, Arial;
+      margin: 0;
+      padding: 16px;
+      max-width: 480px;
       margin: auto;
+      background: #f5f5f5;
     }
+
     h1 {
+      font-size: 20px;
       text-align: center;
+      margin-bottom: 10px;
     }
+
+    .start {
+      background: #e8f0fe;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+
     button {
       width: 100%;
-      padding: 15px;
-      margin: 8px 0;
-      font-size: 16px;
-      border-radius: 10px;
+      padding: 16px;
+      margin: 6px 0;
       border: none;
-      background-color: #007bff;
+      border-radius: 12px;
+      font-size: 16px;
+      background: black;
       color: white;
     }
-    .steps {
+
+    .result {
       margin-top: 20px;
-      padding: 15px;
-      border-radius: 10px;
-      background: #f0f0f0;
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+    }
+
+    ol {
+      padding-left: 18px;
+    }
+
+    .note {
+      margin-top: 10px;
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
 
-<h1>📍 คุณอยู่: ประชาสัมพันธ์ ชั้น 1</h1>
-<p>คุณต้องการไปที่ไหน?</p>
+<h1>📍 ระบบนำทาง</h1>
 
-<button onclick="showRoute(1)">ห้องเก็บสำนวนคดีดำ (ชั้น 1)</button>
-<button onclick="showRoute(2)">ห้องเก็บสำนวนคดีแดง (ชั้น B)</button>
-<button onclick="showRoute(3)">ศูนย์หน้าบัลลังก์ (ชั้น 2)</button>
-<button onclick="showRoute(4)">เจ้าพนักงานคดี (ชั้น 5)</button>
-<button onclick="showRoute(5)">ศูนย์ไกล่เกลี่ย (ชั้น 8)</button>
+<div class="start">
+  คุณอยู่: ประชาสัมพันธ์ (ชั้น 1)
+</div>
 
-<div id="result" class="steps"></div>
+<p>เลือกปลายทาง:</p>
+
+<button onclick="show('black')">📂 ห้องเก็บสำนวนคดีดำ (ชั้น 1)</button>
+<button onclick="show('red')">📂 ห้องเก็บสำนวนคดีแดง (ชั้น B)</button>
+<button onclick="show('court')">⚖️ ศูนย์หน้าบัลลังก์ (ชั้น 2)</button>
+<button onclick="show('officer')">👨‍💼 เจ้าพนักงานคดี (ชั้น 5)</button>
+<button onclick="show('mediation')">🤝 ศูนย์ไกล่เกลี่ย (ชั้น 8)</button>
+
+<div id="result" class="result" style="display:none;"></div>
 
 <script>
 const routes = {
-  1: [
-    "เดินไปยังห้องเก็บสำนวนคดีดำ",
-    "อยู่ชั้น 1"
-  ],
-  2: [
-    "เดินไปลิฟต์ลานจอดรถ",
-    "ลงไปชั้น B",
-    "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
-  ],
-  3: [
-    "เดินไปลิฟต์หลัก",
-    "ขึ้นไปชั้น 2",
-    "ออกจากลิฟต์ เลี้ยวซ้าย",
-    "ถึงศูนย์หน้าบัลลังก์และศูนย์นัดความ"
-  ],
-  4: [
-    "เดินไปลิฟต์หลัก",
-    "ขึ้นไปชั้น 5",
-    "ออกจากลิฟต์ เลี้ยวซ้าย",
-    "เดินตามป้าย",
-    "ถึงส่วนเจ้าพนักงานคดี"
-  ],
-  5: [
-    "เดินไปลิฟต์หลัก",
-    "ขึ้นไปชั้น 8",
-    "ถึงศูนย์ไกล่เกลี่ยและประนอมข้อพิพาท"
-  ]
+  black: {
+    title: "ห้องเก็บสำนวนคดีดำ",
+    steps: [
+      "เดินไปยังห้องเก็บสำนวนคดีดำ",
+      "อยู่ชั้น 1"
+    ]
+  },
+  red: {
+    title: "ห้องเก็บสำนวนคดีแดง",
+    steps: [
+      "ไปลิฟต์ลานจอดรถ",
+      "ลงไปชั้น B",
+      "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
+    ],
+    note: "❗ ใช้ลิฟต์ลานจอดรถ"
+  },
+  court: {
+    title: "ศูนย์หน้าบัลลังก์",
+    steps: [
+      "ใช้ลิฟต์อาคารหลัก",
+      "ขึ้นไปชั้น 2",
+      "ออกจากลิฟต์ เลี้ยวซ้าย"
+    ],
+    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ"
+  },
+  officer: {
+    title: "เจ้าพนักงานคดี",
+    steps: [
+      "ใช้ลิฟต์อาคารหลัก",
+      "ขึ้นไปชั้น 5",
+      "ออกจากลิฟต์ เลี้ยวซ้าย",
+      "เดินตามป้าย"
+    ],
+    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ"
+  },
+  mediation: {
+    title: "ศูนย์ไกล่เกลี่ย",
+    steps: [
+      "ใช้ลิฟต์อาคารหลัก",
+      "ขึ้นไปชั้น 8"
+    ],
+    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ"
+  }
 };
 
-function showRoute(id) {
-  const steps = routes[id];
-  let html = "<h3>🧭 เส้นทาง</h3><ol>";
-  steps.forEach(step => {
+function show(key) {
+  const route = routes[key];
+
+  let html = `<h3>🧭 ไป: ${route.title}</h3><ol>`;
+  route.steps.forEach(step => {
     html += `<li>${step}</li>`;
   });
   html += "</ol>";
-  document.getElementById("result").innerHTML = html;
+
+  if (route.note) {
+    html += `<div class="note">${route.note}</div>`;
+  }
+
+  const box = document.getElementById("result");
+  box.innerHTML = html;
+  box.style.display = "block";
 }
 </script>
 
