@@ -1,19 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>QR Test</title>
+  <title>Navigation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h1 {
       text-align: center;
-      margin-top: 100px;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      margin: 8px 0;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+    }
+    .steps {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f0f0f0;
     }
   </style>
 </head>
+
 <body>
-  <h1>✅ The QR code worked</h1>
-  <p>You are now on the website.</p>
-  <p>Poti Ariyatanatitiwong</p>
+
+<h1>📍 คุณอยู่: ประชาสัมพันธ์ ชั้น 1</h1>
+<p>คุณต้องการไปที่ไหน?</p>
+
+<button onclick="showRoute(1)">ห้องเก็บสำนวนคดีดำ (ชั้น 1)</button>
+<button onclick="showRoute(2)">ห้องเก็บสำนวนคดีแดง (ชั้น B)</button>
+<button onclick="showRoute(3)">ศูนย์หน้าบัลลังก์ (ชั้น 2)</button>
+<button onclick="showRoute(4)">เจ้าพนักงานคดี (ชั้น 5)</button>
+<button onclick="showRoute(5)">ศูนย์ไกล่เกลี่ย (ชั้น 8)</button>
+
+<div id="result" class="steps"></div>
+
+<script>
+const routes = {
+  1: [
+    "เดินไปยังห้องเก็บสำนวนคดีดำ",
+    "อยู่ชั้น 1"
+  ],
+  2: [
+    "เดินไปลิฟต์ลานจอดรถ",
+    "ลงไปชั้น B",
+    "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
+  ],
+  3: [
+    "เดินไปลิฟต์หลัก",
+    "ขึ้นไปชั้น 2",
+    "ออกจากลิฟต์ เลี้ยวซ้าย",
+    "ถึงศูนย์หน้าบัลลังก์และศูนย์นัดความ"
+  ],
+  4: [
+    "เดินไปลิฟต์หลัก",
+    "ขึ้นไปชั้น 5",
+    "ออกจากลิฟต์ เลี้ยวซ้าย",
+    "เดินตามป้าย",
+    "ถึงส่วนเจ้าพนักงานคดี"
+  ],
+  5: [
+    "เดินไปลิฟต์หลัก",
+    "ขึ้นไปชั้น 8",
+    "ถึงศูนย์ไกล่เกลี่ยและประนอมข้อพิพาท"
+  ]
+};
+
+function showRoute(id) {
+  const steps = routes[id];
+  let html = "<h3>🧭 เส้นทาง</h3><ol>";
+  steps.forEach(step => {
+    html += `<li>${step}</li>`;
+  });
+  html += "</ol>";
+  document.getElementById("result").innerHTML = html;
+}
+</script>
+
 </body>
 </html>
