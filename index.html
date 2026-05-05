@@ -58,6 +58,12 @@
       color: red;
       font-weight: bold;
     }
+
+    img {
+      width: 100%;
+      margin-top: 12px;
+      border-radius: 10px;
+    }
   </style>
 </head>
 
@@ -88,15 +94,18 @@ const routes = {
       "อยู่ชั้น 1"
     ]
   },
+
   red: {
     title: "ห้องเก็บสำนวนคดีแดง",
     steps: [
-      "ไปลิฟต์ลานจอดรถ (สามารถใช้บันไดลงได้)",
+      "ไปลิฟต์ลานจอดรถ (หรือใช้บันไดลงได้)",
       "ลงไปชั้น B",
       "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
     ],
-    note: "❗ ใช้ลิฟต์ลานจอดรถ"
+    note: "❗ ใช้ลิฟต์ลานจอดรถ",
+    image: "images/parking-lift.jpg"
   },
+
   court: {
     title: "ศูนย์หน้าบัลลังก์",
     steps: [
@@ -104,8 +113,10 @@ const routes = {
       "ขึ้นไปชั้น 2",
       "ออกจากลิฟต์ เลี้ยวซ้าย"
     ],
-    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ"
+    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+    image: "images/main-lift.jpg"
   },
+
   officer: {
     title: "เจ้าพนักงานคดี",
     steps: [
@@ -114,15 +125,18 @@ const routes = {
       "ออกจากลิฟต์ เลี้ยวซ้าย",
       "เดินตามป้าย"
     ],
-    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ"
+    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+    image: "images/main-lift.jpg"
   },
+
   mediation: {
     title: "ศูนย์ไกล่เกลี่ย",
     steps: [
       "ใช้ลิฟต์อาคารหลัก",
       "ขึ้นไปชั้น 8"
     ],
-    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ"
+    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+    image: "images/main-lift.jpg"
   }
 };
 
@@ -137,6 +151,10 @@ function show(key) {
 
   if (route.note) {
     html += `<div class="note">${route.note}</div>`;
+  }
+
+  if (route.image) {
+    html += `<img src="${route.image}" loading="lazy">`;
   }
 
   const box = document.getElementById("result");
