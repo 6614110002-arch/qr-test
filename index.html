@@ -162,9 +162,12 @@ function show(key) {
   box.innerHTML = html;
   box.style.display = "block";
 
+  setTimeout(() => {
   box.scrollIntoView({
-  behavior: "smooth"
-});
+    behavior: "smooth",
+    block: "end"
+  });
+}, 300);
 }
 </script>
 
