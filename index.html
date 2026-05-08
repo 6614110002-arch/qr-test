@@ -161,6 +161,10 @@ function show(key) {
   const box = document.getElementById("result");
   box.innerHTML = html;
   box.style.display = "block";
+
+  box.scrollIntoView({
+  behavior: "smooth"
+});
 }
 </script>
 
