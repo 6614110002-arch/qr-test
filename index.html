@@ -157,9 +157,26 @@ function show(key) {
     html += `<div class="note">${route.note}</div>`;
   }
 
-  if (route.image) {
-    html += `<img src="${route.image}" loading="lazy">`;
-  }
+  if (route.images) {
+  html += `
+    <div style="display:flex; gap:10px; margin-top:12px;">
+  `;
+
+  route.images.forEach(img => {
+    html += `
+      <img 
+        src="${img}" 
+        loading="lazy"
+        style="width:48%; border-radius:10px;"
+      >
+    `;
+  });
+
+  html += `</div>`;
+}
+else if (route.image) {
+  html += `<img src="${route.image}" loading="lazy">`;
+}
 
   const box = document.getElementById("result");
   box.innerHTML = html;
