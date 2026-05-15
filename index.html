@@ -159,7 +159,7 @@ function show(key) {
 
   if (route.images) {
   html += `
-    <div style="display:flex; gap:10px; margin-top:12px;">
+    <div style="margin-top:12px;">
   `;
 
   route.images.forEach(img => {
@@ -167,10 +167,17 @@ function show(key) {
       <img 
         src="${img}" 
         loading="lazy"
-        style="width:48%; border-radius:10px;"
+        style="
+          width:100%;
+          border-radius:10px;
+          margin-bottom:10px;
+        "
       >
     `;
   });
+
+  html += `</div>`;
+}
 
   html += `</div>`;
 }
