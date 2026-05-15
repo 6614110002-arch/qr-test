@@ -39,6 +39,7 @@
       font-size: 16px;
       background: black;
       color: white;
+      cursor: pointer;
     }
 
     .result {
@@ -63,6 +64,7 @@
       width: 100%;
       margin-top: 12px;
       border-radius: 10px;
+      display: block;
     }
   </style>
 </head>
@@ -77,16 +79,31 @@
 
 <p>เลือกปลายทาง:</p>
 
-<button onclick="show('black')">📂 ห้องเก็บสำนวนคดีดำ (ชั้น 1)</button>
-<button onclick="show('red')">📂 ห้องเก็บสำนวนคดีแดง (ชั้น B)</button>
-<button onclick="show('court')">⚖️ ศูนย์หน้าบัลลังก์ (ชั้น 2)</button>
-<button onclick="show('officer')">👨‍💼 เจ้าพนักงานคดี (ชั้น 5)</button>
-<button onclick="show('mediation')">🤝 ศูนย์ไกล่เกลี่ย (ชั้น 8)</button>
+<button onclick="show('black')">
+  📂 ห้องเก็บสำนวนคดีดำ (ชั้น 1)
+</button>
+
+<button onclick="show('red')">
+  📂 ห้องเก็บสำนวนคดีแดง (ชั้น B)
+</button>
+
+<button onclick="show('court')">
+  ⚖️ ศูนย์หน้าบัลลังก์ (ชั้น 2)
+</button>
+
+<button onclick="show('officer')">
+  👨‍💼 เจ้าพนักงานคดี (ชั้น 5)
+</button>
+
+<button onclick="show('mediation')">
+  🤝 ศูนย์ไกล่เกลี่ย (ชั้น 8)
+</button>
 
 <div id="result" class="result" style="display:none;"></div>
 
 <script>
 const routes = {
+
   black: {
     title: "ห้องเก็บสำนวนคดีดำ",
     steps: [
@@ -105,9 +122,9 @@ const routes = {
     ],
     note: "❗ ใช้ลิฟต์ลานจอดรถ",
     images: [
-    "images/Group 165.png",
-    "images/Group 157.png"
-  ]
+      "images/Group 165.png",
+      "images/Group 157.png"
+    ]
   },
 
   court: {
@@ -148,53 +165,58 @@ function show(key) {
   const route = routes[key];
 
   let html = `<h3>🧭 ไป: ${route.title}</h3><ol>`;
+
   route.steps.forEach(step => {
     html += `<li>${step}</li>`;
   });
+
   html += "</ol>";
 
   if (route.note) {
     html += `<div class="note">${route.note}</div>`;
   }
 
+  // หลายรูป (เรียงบนล่าง)
   if (route.images) {
-  html += `
-    <div style="margin-top:12px;">
-  `;
+    html += `<div style="margin-top:12px;">`;
 
-  route.images.forEach(img => {
+    route.images.forEach(img => {
+      html += `
+        <img
+          src="${img}"
+          loading="lazy"
+          style="
+            width:100%;
+            border-radius:10px;
+            margin-bottom:10px;
+          "
+        >
+      `;
+    });
+
+    html += `</div>`;
+  }
+
+  // รูปเดียว
+  else if (route.image) {
     html += `
-      <img 
-        src="${img}" 
+      <img
+        src="${route.image}"
         loading="lazy"
-        style="
-          width:100%;
-          border-radius:10px;
-          margin-bottom:10px;
-        "
       >
     `;
-  });
-
-  html += `</div>`;
-}
-
-  html += `</div>`;
-}
-else if (route.image) {
-  html += `<img src="${route.image}" loading="lazy">`;
-}
+  }
 
   const box = document.getElementById("result");
   box.innerHTML = html;
   box.style.display = "block";
 
   setTimeout(() => {
-  box.scrollIntoView({
-    behavior: "smooth",
-    block: "end"
-  });
-}, 1000);
+    box.scrollIntoView({
+      behavior: "smooth",
+      block: "end"
+    });
+  }, 500);
 }
 </script>
 
