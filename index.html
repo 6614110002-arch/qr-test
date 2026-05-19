@@ -250,17 +250,32 @@ function show(key) {
   
   // Show Modal
   document.getElementById("myModal").style.display = "block";
+  
+  // Push a new state so the back button can be used to close the modal
+  history.pushState({ modalOpen: true }, "");
 }
 
-function closeModal() {
+function closeModal(isPopState = false) {
   document.getElementById("myModal").style.display = "none";
+  // If we closed the modal manually (not via back button), remove the history state
+  if (!isPopState && history.state && history.state.modalOpen) {
+    history.back();
+  }
 }
+
+// Handle the browser back button
+window.onpopstate = function(event) {
+  // If the modal is open, close it
+  if (document.getElementById("myModal").style.display === "block") {
+    closeModal(true);
+  }
+};
 
 // Close modal when clicking outside of it
 window.onclick = function(event) {
   const modal = document.getElementById("myModal");
   if (event.target == modal) {
-    modal.style.display = "none";
+    closeModal();
   }
 }
 </script>
