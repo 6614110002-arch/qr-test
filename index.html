@@ -42,12 +42,50 @@
       cursor: pointer;
     }
 
-    .result {
-      margin-top: 20px;
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
+    /* Modal Overlay */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      overflow-y: auto;
+      backdrop-filter: blur(2px);
+    }
+
+    /* Modal Content Box */
+    .modal-content {
+      background-color: white;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .close {
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #888;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    .result h3 {
+      margin-top: 0;
+      padding-right: 25px;
     }
 
     ol {
@@ -99,11 +137,16 @@
   🤝 ศูนย์ไกล่เกลี่ย (ชั้น 8)
 </button>
 
-<div id="result" class="result" style="display:none;"></div>
+<!-- Modal Structure -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div id="result" class="result"></div>
+  </div>
+</div>
 
 <script>
 const routes = {
-
   black: {
     title: "ห้องเก็บสำนวนคดีดำ",
     steps: [
@@ -112,7 +155,6 @@ const routes = {
     ],
     image: "images/Group 233.png"
   },
-
   red: {
     title: "ห้องเก็บสำนวนคดีแดง",
     steps: [
@@ -126,7 +168,6 @@ const routes = {
       "images/Group 237.png"
     ]
   },
-
   court: {
     title: "ศูนย์หน้าบัลลังก์",
     steps: [
@@ -140,7 +181,6 @@ const routes = {
       "images/Group 238.png"
     ]
   },
-
   officer: {
     title: "เจ้าพนักงานคดี",
     steps: [
@@ -155,7 +195,6 @@ const routes = {
       "images/dancing-cat-cat.gif"
     ]
   },
-
   mediation: {
     title: "ศูนย์ไกล่เกลี่ย",
     steps: [
@@ -169,7 +208,6 @@ const routes = {
 
 function show(key) {
   const route = routes[key];
-
   let html = `<h3>🧭 ไป: ${route.title}</h3><ol>`;
 
   route.steps.forEach(step => {
@@ -182,10 +220,8 @@ function show(key) {
     html += `<div class="note">${route.note}</div>`;
   }
 
-  // หลายรูป (เรียงบนล่าง)
   if (route.images) {
     html += `<div style="margin-top:12px;">`;
-
     route.images.forEach(img => {
       html += `
         <img
@@ -199,12 +235,8 @@ function show(key) {
         >
       `;
     });
-
     html += `</div>`;
-  }
-
-  // รูปเดียว
-  else if (route.image) {
+  } else if (route.image) {
     html += `
       <img
         src="${route.image}"
@@ -215,14 +247,21 @@ function show(key) {
 
   const box = document.getElementById("result");
   box.innerHTML = html;
-  box.style.display = "block";
+  
+  // Show Modal
+  document.getElementById("myModal").style.display = "block";
+}
 
-  setTimeout(() => {
-    box.scrollIntoView({
-      behavior: "smooth",
-      block: "end"
-    });
-  }, 500);
+function closeModal() {
+  document.getElementById("myModal").style.display = "none";
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+  const modal = document.getElementById("myModal");
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
 }
 </script>
 
