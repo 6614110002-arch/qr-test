@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <title>ระบบนำทาง</title>
@@ -50,7 +51,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.6);
+      background-color: rgba(0, 0, 0, 0.6);
       overflow-y: auto;
       backdrop-filter: blur(2px);
     }
@@ -63,7 +64,7 @@
       width: 90%;
       max-width: 400px;
       position: relative;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .close {
@@ -109,22 +110,22 @@
 
     /* Eye icon */
     .eye-btn {
-  position: absolute;
-  width: 38px;
-  height: 30px;
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-  z-index: 10;
-  padding: 3px;
+      position: absolute;
+      width: 38px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      z-index: 10;
+      padding: 3px;
 
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.eye-btn:hover {
-  transform: scale(1.08);
-}
+    .eye-btn:hover {
+      transform: scale(1.08);
+    }
 
     /* second popup */
     #imageModal {
@@ -141,257 +142,257 @@
 
 <body>
 
-<h1>📍 ระบบนำทาง</h1>
+  <h1>📍 ระบบนำทาง</h1>
 
-<div class="start">
-  คุณอยู่: ประชาสัมพันธ์ (ชั้น 1)
-</div>
-
-<p>เลือกปลายทาง:</p>
-
-<button onclick="show('black')">
-  📂 ห้องเก็บสำนวนคดีดำ (ชั้น 1)
-</button>
-
-<button onclick="show('red')">
-  📂 ห้องเก็บสำนวนคดีแดง (ชั้น B)
-</button>
-
-<button onclick="show('court')">
-  ⚖️ ศูนย์หน้าบัลลังก์ (ชั้น 2)
-</button>
-
-<button onclick="show('officer')">
-  👨‍💼 เจ้าพนักงานคดี (ชั้น 5)
-</button>
-
-<button onclick="show('mediation')">
-  🤝 ศูนย์ไกล่เกลี่ย (ชั้น 8)
-</button>
-
-<!-- MAIN MODAL -->
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <div id="result" class="result"></div>
+  <div class="start">
+    คุณอยู่: ประชาสัมพันธ์ (ชั้น 1)
   </div>
-</div>
 
-<!-- IMAGE POPUP -->
-<div id="imageModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeImageModal()">&times;</span>
+  <p>เลือกปลายทาง:</p>
 
-    <img id="popupImage" src="">
+  <button onclick="show('black')">
+    📂 ห้องเก็บสำนวนคดีดำ (ชั้น 1)
+  </button>
+
+  <button onclick="show('red')">
+    📂 ห้องเก็บสำนวนคดีแดง (ชั้น B)
+  </button>
+
+  <button onclick="show('court')">
+    ⚖️ ศูนย์หน้าบัลลังก์ (ชั้น 2)
+  </button>
+
+  <button onclick="show('officer')">
+    👨‍💼 เจ้าพนักงานคดี (ชั้น 5)
+  </button>
+
+  <button onclick="show('mediation')">
+    🤝 ศูนย์ไกล่เกลี่ย (ชั้น 8)
+  </button>
+
+  <!-- MAIN MODAL -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="result" class="result"></div>
+    </div>
   </div>
-</div>
 
-<script>
-const routes = {
+  <!-- IMAGE POPUP -->
+  <div id="imageModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeImageModal()">&times;</span>
 
-black: {
-  title: "ห้องเก็บสำนวนคดีดำ",
-  steps: [
-    "เดินไปยังห้องเก็บสำนวนคดีดำ",
-    "อยู่ชั้น 1"
-  ],
+      <img id="popupImage" src="">
+    </div>
+  </div>
 
-  images: [
-    {
-      image: "images/FL1GIF.gif",
+  <script>
+    const routes = {
 
-      eyes: [
-        {
-          top: "50px",
-          left: "170px",
-          popup: "images/black-detail.jpg"
-        }
-      ]
-    }
-  ]
-},
+      black: {
+        title: "ห้องเก็บสำนวนคดีดำ",
+        steps: [
+          "เดินไปยังห้องเก็บสำนวนคดีดำ",
+          "อยู่ชั้น 1"
+        ],
 
-red: {
-  title: "ห้องเก็บสำนวนคดีแดง",
-  steps: [
-    "ไปลิฟต์ลานจอดรถ (หรือใช้บันไดลงได้)",
-    "ลงไปชั้น B",
-    "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
-  ],
-  note: "❗ ใช้ลิฟต์ลานจอดรถ",
+        images: [
+          {
+            image: "images/FL1GIF.gif",
 
-  images: [
+            eyes: [
+              {
+                top: "12%",
+                left: "43%",
+                popup: "images/black-detail.jpg"
+              }
+            ]
+          }
+        ]
+      },
 
-    {
-      image: "images/FLG.gif",
+      red: {
+        title: "ห้องเก็บสำนวนคดีแดง",
+        steps: [
+          "ไปลิฟต์ลานจอดรถ (หรือใช้บันไดลงได้)",
+          "ลงไปชั้น B",
+          "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
+        ],
+        note: "❗ ใช้ลิฟต์ลานจอดรถ",
 
-      eyes: [
-        {
-          top: "100px",
-          left: "170px",
-          popup: "images/Ered.jpg"
-        }
-      ]
-    },
+        images: [
 
-    {
-      image: "images/FLRed.gif",
+          {
+            image: "images/FLG.gif",
 
-      eyes: [
-        {
-          top: "45%",
-          left: "56%",
-          popup: "images/red-detail2.jpg"
-        }
-      ]
-    }
-  ]
-},
+            eyes: [
+              {
+                top: "14%",
+                left: "43%",
+                popup: "images/Ered.jpg"
+              }
+            ]
+          },
 
-court: {
-  title: "ศูนย์หน้าบัลลังก์",
-  steps: [
-    "ใช้ลิฟต์อาคารหลัก",
-    "ขึ้นไปชั้น 2",
-    "ออกจากลิฟต์ เลี้ยวซ้าย"
-  ],
-  note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+          {
+            image: "images/FLRed.gif",
 
-  images: [
+            eyes: [
+              {
+                top: "45%",
+                left: "56%",
+                popup: "images/red-detail2.jpg"
+              }
+            ]
+          }
+        ]
+      },
 
-    {
-      image: "images/FLUp.gif",
+      court: {
+        title: "ศูนย์หน้าบัลลังก์",
+        steps: [
+          "ใช้ลิฟต์อาคารหลัก",
+          "ขึ้นไปชั้น 2",
+          "ออกจากลิฟต์ เลี้ยวซ้าย"
+        ],
+        note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
 
-      eyes: [
-        {
-          top: "200px",
-          left: "170px",
-          popup: "images/court-detail1.jpg"
-        }
-      ]
-    },
+        images: [
 
-    {
-      image: "images/FL2.gif",
+          {
+            image: "images/FLUp.gif",
 
-      eyes: [
-        {
-          top: "320px",
-          left: "180px",
-          popup: "images/front_of_admin.jpg"
-        },
-        {
-          top: "330px",
-          left: "220px",
-          popup: "images/front_of_admin2.png"
-        }
-      ]
-    }
-  ]
-},
+            eyes: [
+              {
+                top: "55%",
+                left: "43%",
+                popup: "images/court-detail1.jpg"
+              }
+            ]
+          },
 
-officer: {
-  title: "เจ้าพนักงานคดี",
-  steps: [
-    "ใช้ลิฟต์อาคารหลัก",
-    "ขึ้นไปชั้น 5",
-    "ออกจากลิฟต์ เลี้ยวซ้าย",
-    "เดินตามป้าย"
-  ],
-  note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+          {
+            image: "images/FL2.gif",
 
-  images: [
+            eyes: [
+              {
+                top: "79%",
+                left: "46%",
+                popup: "images/front_of_admin.jpg"
+              },
+              {
+                top: "81%",
+                left: "56%",
+                popup: "images/front_of_admin2.png"
+              }
+            ]
+          }
+        ]
+      },
 
-    {
-      image: "images/FLUp.gif",
+      officer: {
+        title: "เจ้าพนักงานคดี",
+        steps: [
+          "ใช้ลิฟต์อาคารหลัก",
+          "ขึ้นไปชั้น 5",
+          "ออกจากลิฟต์ เลี้ยวซ้าย",
+          "เดินตามป้าย"
+        ],
+        note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
 
-      eyes: [
-        {
-          top: "200px",
-          left: "170px",
-          popup: "images/court-detail1.jpg"
-        }
-      ]
-    },
+        images: [
 
-    {
-      image: "images/FL5.gif",
+          {
+            image: "images/FLUp.gif",
 
-      eyes: [
-        {
-          top: "150px",
-          left: "310px",
-          popup: "images/F5E.jpg"
-        },
-        {
-          top: "320px",
-          left: "180px",
-          popup: "images/F5E2.jpg"
-        }
-      ]
-    }
-  ]
-},
+            eyes: [
+              {
+                top: "55%",
+                left: "43%",
+                popup: "images/court-detail1.jpg"
+              }
+            ]
+          },
 
-mediation: {
-  title: "ศูนย์ไกล่เกลี่ย",
-  steps: [
-    "ใช้ลิฟต์อาคารหลัก",
-    "ขึ้นไปชั้น 8"
-  ],
-  note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+          {
+            image: "images/FL5.gif",
 
-  images: [
+            eyes: [
+              {
+                top: "36%",
+                left: "79%",
+                popup: "images/F5E.jpg"
+              },
+              {
+                top: "77%",
+                left: "46%",
+                popup: "images/F5E2.jpg"
+              }
+            ]
+          }
+        ]
+      },
 
-    {
-      image: "images/FLUp.gif",
+      mediation: {
+        title: "ศูนย์ไกล่เกลี่ย",
+        steps: [
+          "ใช้ลิฟต์อาคารหลัก",
+          "ขึ้นไปชั้น 8"
+        ],
+        note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
 
-      eyes: [
-        {
-          top: "200px",
-          left: "170px",
-          popup: "images/court-detail1.jpg"
-        }
-      ]
-    },
+        images: [
 
-    {
-      image: "images/FL8.gif",
+          {
+            image: "images/FLUp.gif",
 
-      eyes: [
-        {
-          top: "350px",
-          left: "180px",
-          popup: "images/detail2.jpg"
-        }
-      ]
-    }
-  ]
-}
-};
+            eyes: [
+              {
+                top: "55%",
+                left: "43%",
+                popup: "images/court-detail1.jpg"
+              }
+            ]
+          },
 
-function show(key) {
+          {
+            image: "images/FL8.gif",
 
-const route = routes[key];
+            eyes: [
+              {
+                top: "80%",
+                left: "46%",
+                popup: "images/detail2.jpg"
+              }
+            ]
+          }
+        ]
+      }
+    };
 
-let html =
-  `<h3>🧭 ไป: ${route.title}</h3><ol>`;
+    function show(key) {
 
-route.steps.forEach(step => {
-  html += `<li>${step}</li>`;
-});
+      const route = routes[key];
 
-html += "</ol>";
+      let html =
+        `<h3>🧭 ไป: ${route.title}</h3><ol>`;
 
-if (route.note) {
-  html += `<div class="note">${route.note}</div>`;
-}
+      route.steps.forEach(step => {
+        html += `<li>${step}</li>`;
+      });
 
-if (route.images) {
+      html += "</ol>";
 
-  route.images.forEach(imgObj => {
+      if (route.note) {
+        html += `<div class="note">${route.note}</div>`;
+      }
 
-    html += `
+      if (route.images) {
+
+        route.images.forEach(imgObj => {
+
+          html += `
     <div class="image-container">
 
       <img
@@ -400,11 +401,11 @@ if (route.images) {
       >
     `;
 
-    if (imgObj.eyes) {
+          if (imgObj.eyes) {
 
-      imgObj.eyes.forEach(eye => {
+            imgObj.eyes.forEach(eye => {
 
-        html += `
+              html += `
         <button
           class="eye-btn"
           onclick="openImageModal('${eye.popup}')"
@@ -424,71 +425,72 @@ if (route.images) {
           >
         </button>
         `;
-      });
+            });
+          }
+
+          html += `</div>`;
+        });
+      }
+
+      document.getElementById("result").innerHTML = html;
+
+      document.getElementById("myModal").style.display =
+        "block";
+
+      history.pushState(
+        { modalOpen: true },
+        ""
+      );
     }
 
-    html += `</div>`;
-  });
-}
+    function openImageModal(imgSrc) {
+      document.getElementById("popupImage").src = imgSrc;
+      document.getElementById("imageModal").style.display = "block";
+    }
 
-document.getElementById("result").innerHTML = html;
+    function closeImageModal() {
+      document.getElementById("imageModal").style.display = "none";
+    }
 
-document.getElementById("myModal").style.display =
-  "block";
+    function closeModal(isPopState = false) {
+      document.getElementById("myModal").style.display = "none";
 
-history.pushState(
-  { modalOpen: true },
-  ""
-);
-}
+      if (!isPopState && history.state && history.state.modalOpen) {
+        history.back();
+      }
+    }
 
-function openImageModal(imgSrc) {
-  document.getElementById("popupImage").src = imgSrc;
-  document.getElementById("imageModal").style.display = "block";
-}
+    window.onpopstate = function () {
 
-function closeImageModal() {
-  document.getElementById("imageModal").style.display = "none";
-}
+      if (
+        document.getElementById("imageModal").style.display === "block"
+      ) {
+        closeImageModal();
+        return;
+      }
 
-function closeModal(isPopState = false) {
-  document.getElementById("myModal").style.display = "none";
+      if (
+        document.getElementById("myModal").style.display === "block"
+      ) {
+        closeModal(true);
+      }
+    };
 
-  if (!isPopState && history.state && history.state.modalOpen) {
-    history.back();
-  }
-}
+    window.onclick = function (event) {
 
-window.onpopstate = function() {
+      const modal = document.getElementById("myModal");
+      const imageModal = document.getElementById("imageModal");
 
-  if (
-    document.getElementById("imageModal").style.display === "block"
-  ) {
-    closeImageModal();
-    return;
-  }
+      if (event.target == modal) {
+        closeModal();
+      }
 
-  if (
-    document.getElementById("myModal").style.display === "block"
-  ) {
-    closeModal(true);
-  }
-};
-
-window.onclick = function(event) {
-
-  const modal = document.getElementById("myModal");
-  const imageModal = document.getElementById("imageModal");
-
-  if (event.target == modal) {
-    closeModal();
-  }
-
-  if (event.target == imageModal) {
-    closeImageModal();
-  }
-}
-</script>
+      if (event.target == imageModal) {
+        closeImageModal();
+      }
+    }
+  </script>
 
 </body>
+
 </html>
