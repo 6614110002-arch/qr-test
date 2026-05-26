@@ -236,7 +236,7 @@
               {
                 top: "14%",
                 left: "43%",
-                popup: "images/ERed.jpg"
+                popup: "images/Ered.jpg"
               }
             ]
           },
@@ -279,7 +279,7 @@
           },
 
           {
-            image: "images/Fl2.gif",
+            image: "images/FL2.gif",
 
             eyes: [
               {
@@ -468,17 +468,34 @@
 
     window.onpopstate = function () {
 
+      const imageModal =
+        document.getElementById(
+          "imageModal"
+        );
+
+      const mainModal =
+        document.getElementById(
+          "myModal"
+        );
+
+      /* first close image popup */
       if (
-        document.getElementById("imageModal").style.display === "block"
+        imageModal.style.display ===
+        "block"
       ) {
+
         closeImageModal();
         return;
       }
 
+      /* then close main popup */
       if (
-        document.getElementById("myModal").style.display === "block"
+        mainModal.style.display ===
+        "block"
       ) {
+
         closeModal(true);
+        return;
       }
     };
 
