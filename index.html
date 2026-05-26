@@ -42,7 +42,6 @@
       cursor: pointer;
     }
 
-    /* Modal Overlay */
     .modal {
       display: none;
       position: fixed;
@@ -51,12 +50,11 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
+      background-color: rgba(0,0,0,0.6);
       overflow-y: auto;
       backdrop-filter: blur(2px);
     }
 
-    /* Modal Content Box */
     .modal-content {
       background-color: white;
       margin: 10% auto;
@@ -98,9 +96,43 @@
       font-weight: bold;
     }
 
-    img {
+    .image-container {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .route-image {
       width: 100%;
-      margin-top: 12px;
+      border-radius: 10px;
+      display: block;
+    }
+
+    /* Eye icon */
+    .eye-btn {
+  position: absolute;
+  width: 38px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  z-index: 10;
+  padding: 3px;
+
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.eye-btn:hover {
+  transform: scale(1.08);
+}
+
+    /* second popup */
+    #imageModal {
+      z-index: 2000;
+    }
+
+    #popupImage {
+      width: 100%;
       border-radius: 10px;
       display: block;
     }
@@ -137,7 +169,7 @@
   🤝 ศูนย์ไกล่เกลี่ย (ชั้น 8)
 </button>
 
-<!-- Modal Structure -->
+<!-- MAIN MODAL -->
 <div id="myModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">&times;</span>
@@ -145,140 +177,315 @@
   </div>
 </div>
 
+<!-- IMAGE POPUP -->
+<div id="imageModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeImageModal()">&times;</span>
+
+    <img id="popupImage" src="">
+  </div>
+</div>
+
 <script>
 const routes = {
-  black: {
-    title: "ห้องเก็บสำนวนคดีดำ",
-    steps: [
-      "เดินไปยังห้องเก็บสำนวนคดีดำ",
-      "อยู่ชั้น 1"
-    ],
-    image: "images/Group 233.png"
-  },
-  red: {
-    title: "ห้องเก็บสำนวนคดีแดง",
-    steps: [
-      "ไปลิฟต์ลานจอดรถ (หรือใช้บันไดลงได้)",
-      "ลงไปชั้น B",
-      "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
-    ],
-    note: "❗ ใช้ลิฟต์ลานจอดรถ",
-    images: [
-      "images/Group 236.png",
-      "images/Group 237.png"
-    ]
-  },
-  court: {
-    title: "ศูนย์หน้าบัลลังก์",
-    steps: [
-      "ใช้ลิฟต์อาคารหลัก",
-      "ขึ้นไปชั้น 2",
-      "ออกจากลิฟต์ เลี้ยวซ้าย"
-    ],
-    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
-    images: [
-      "images/Group 234.png",
-      "images/Group 238.png"
-    ]
-  },
-  officer: {
-    title: "เจ้าพนักงานคดี",
-    steps: [
-      "ใช้ลิฟต์อาคารหลัก",
-      "ขึ้นไปชั้น 5",
-      "ออกจากลิฟต์ เลี้ยวซ้าย",
-      "เดินตามป้าย"
-    ],
-    note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
-    images: [
-      "images/Group 234.png",
-      "images/Group 246.png"
-    ]
-  },
-  mediation: {
+
+black: {
+  title: "ห้องเก็บสำนวนคดีดำ",
+  steps: [
+    "เดินไปยังห้องเก็บสำนวนคดีดำ",
+    "อยู่ชั้น 1"
+  ],
+
+  images: [
+    {
+      image: "images/FL1GIF.gif",
+
+      eyes: [
+        {
+          top: "50px",
+          left: "170px",
+          popup: "images/black-detail.jpg"
+        }
+      ]
+    }
+  ]
+},
+
+red: {
+  title: "ห้องเก็บสำนวนคดีแดง",
+  steps: [
+    "ไปลิฟต์ลานจอดรถ (หรือใช้บันไดลงได้)",
+    "ลงไปชั้น B",
+    "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
+  ],
+  note: "❗ ใช้ลิฟต์ลานจอดรถ",
+
+  images: [
+
+    {
+      image: "images/FLG.gif",
+
+      eyes: [
+        {
+          top: "100px",
+          left: "170px",
+          popup: "images/Ered.jpg"
+        }
+      ]
+    },
+
+    {
+      image: "images/FLRed.gif",
+
+      eyes: [
+        {
+          top: "150px",
+          left: "220px",
+          popup: "images/red-detail2.jpg"
+        }
+      ]
+    }
+  ]
+},
+
+court: {
+  title: "ศูนย์หน้าบัลลังก์",
+  steps: [
+    "ใช้ลิฟต์อาคารหลัก",
+    "ขึ้นไปชั้น 2",
+    "ออกจากลิฟต์ เลี้ยวซ้าย"
+  ],
+  note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+
+  images: [
+
+    {
+      image: "images/FLUp.gif",
+
+      eyes: [
+        {
+          top: "200px",
+          left: "170px",
+          popup: "images/court-detail1.jpg"
+        }
+      ]
+    },
+
+    {
+      image: "images/FL2.gif",
+
+      eyes: [
+        {
+          top: "320px",
+          left: "180px",
+          popup: "images/front_of_admin.jpg"
+        },
+        {
+          top: "330px",
+          left: "220px",
+          popup: "images/front_of_admin2.png"
+        }
+      ]
+    }
+  ]
+},
+
+officer: {
+  title: "เจ้าพนักงานคดี",
+  steps: [
+    "ใช้ลิฟต์อาคารหลัก",
+    "ขึ้นไปชั้น 5",
+    "ออกจากลิฟต์ เลี้ยวซ้าย",
+    "เดินตามป้าย"
+  ],
+  note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+
+  images: [
+
+    {
+      image: "images/FLUp.gif",
+
+      eyes: [
+        {
+          top: "200px",
+          left: "170px",
+          popup: "images/court-detail1.jpg"
+        }
+      ]
+    },
+
+    {
+      image: "images/FL5.gif",
+
+      eyes: [
+        {
+          top: "150px",
+          left: "310px",
+          popup: "images/F5E.jpg"
+        },
+        {
+          top: "320px",
+          left: "180px",
+          popup: "images/F5E2.jpg"
+        }
+      ]
+    }
+  ]
+},
+
+mediation: {
   title: "ศูนย์ไกล่เกลี่ย",
   steps: [
     "ใช้ลิฟต์อาคารหลัก",
     "ขึ้นไปชั้น 8"
   ],
   note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
+
   images: [
-    "images/Group 234.png",
-    "images/Group 255.png"
+
+    {
+      image: "images/FLUp.gif",
+
+      eyes: [
+        {
+          top: "200px",
+          left: "170px",
+          popup: "images/court-detail1.jpg"
+        }
+      ]
+    },
+
+    {
+      image: "images/FL8.gif",
+
+      eyes: [
+        {
+          top: "350px",
+          left: "180px",
+          popup: "images/detail2.jpg"
+        }
+      ]
+    }
   ]
 }
 };
 
 function show(key) {
-  const route = routes[key];
-  let html = `<h3>🧭 ไป: ${route.title}</h3><ol>`;
 
-  route.steps.forEach(step => {
-    html += `<li>${step}</li>`;
-  });
+const route = routes[key];
 
-  html += "</ol>";
+let html =
+  `<h3>🧭 ไป: ${route.title}</h3><ol>`;
 
-  if (route.note) {
-    html += `<div class="note">${route.note}</div>`;
-  }
+route.steps.forEach(step => {
+  html += `<li>${step}</li>`;
+});
 
-  if (route.images) {
-    html += `<div style="margin-top:12px;">`;
-    route.images.forEach(img => {
-      html += `
-        <img
-          src="${img}"
-          loading="lazy"
-          style="
-            width:100%;
-            border-radius:10px;
-            margin-bottom:10px;
-          "
-        >
-      `;
-    });
-    html += `</div>`;
-  } else if (route.image) {
+html += "</ol>";
+
+if (route.note) {
+  html += `<div class="note">${route.note}</div>`;
+}
+
+if (route.images) {
+
+  route.images.forEach(imgObj => {
+
     html += `
+    <div class="image-container">
+
       <img
-        src="${route.image}"
-        loading="lazy"
+        src="${imgObj.image}"
+        class="route-image"
       >
     `;
-  }
 
-  const box = document.getElementById("result");
-  box.innerHTML = html;
-  
-  // Show Modal
-  document.getElementById("myModal").style.display = "block";
-  
-  // Push a new state so the back button can be used to close the modal
-  history.pushState({ modalOpen: true }, "");
+    if (imgObj.eyes) {
+
+      imgObj.eyes.forEach(eye => {
+
+        html += `
+        <button
+          class="eye-btn"
+          onclick="openImageModal('${eye.popup}')"
+          style="
+            top:${eye.top};
+            left:${eye.left};
+          "
+        >
+          <img
+            src="images/searching.png"
+            style="
+              width:28px;
+              height:28px;
+              object-fit:contain;
+              pointer-events:none;
+            "
+          >
+        </button>
+        `;
+      });
+    }
+
+    html += `</div>`;
+  });
+}
+
+document.getElementById("result").innerHTML = html;
+
+document.getElementById("myModal").style.display =
+  "block";
+
+history.pushState(
+  { modalOpen: true },
+  ""
+);
+}
+
+function openImageModal(imgSrc) {
+  document.getElementById("popupImage").src = imgSrc;
+  document.getElementById("imageModal").style.display = "block";
+}
+
+function closeImageModal() {
+  document.getElementById("imageModal").style.display = "none";
 }
 
 function closeModal(isPopState = false) {
   document.getElementById("myModal").style.display = "none";
-  // If we closed the modal manually (not via back button), remove the history state
+
   if (!isPopState && history.state && history.state.modalOpen) {
     history.back();
   }
 }
 
-// Handle the browser back button
-window.onpopstate = function(event) {
-  // If the modal is open, close it
-  if (document.getElementById("myModal").style.display === "block") {
+window.onpopstate = function() {
+
+  if (
+    document.getElementById("imageModal").style.display === "block"
+  ) {
+    closeImageModal();
+    return;
+  }
+
+  if (
+    document.getElementById("myModal").style.display === "block"
+  ) {
     closeModal(true);
   }
 };
 
-// Close modal when clicking outside of it
 window.onclick = function(event) {
+
   const modal = document.getElementById("myModal");
+  const imageModal = document.getElementById("imageModal");
+
   if (event.target == modal) {
     closeModal();
+  }
+
+  if (event.target == imageModal) {
+    closeImageModal();
   }
 }
 </script>
