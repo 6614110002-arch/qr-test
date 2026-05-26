@@ -69,17 +69,23 @@
 
     .close {
       position: absolute;
-      right: 15px;
-      top: 10px;
-      font-size: 28px;
+      right: 12px;
+      top: -8px;
+      /* move upward above picture */
+
+      font-size: 40px;
       font-weight: bold;
-      color: #888;
+
+      color: red;
+      /* red X */
       cursor: pointer;
+
       line-height: 1;
+      z-index: 9999;
     }
 
     .close:hover {
-      color: #000;
+      color: darkred;
     }
 
     .result h3 {
