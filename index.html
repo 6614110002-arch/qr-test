@@ -450,9 +450,21 @@
     }
 
     function openImageModal(imgSrc) {
-      document.getElementById("popupImage").src = imgSrc;
-      document.getElementById("imageModal").style.display = "block";
-    }
+
+  document.getElementById(
+    "popupImage"
+  ).src = imgSrc;
+
+  document.getElementById(
+    "imageModal"
+  ).style.display = "block";
+
+  /* add history for second popup */
+  history.pushState(
+    { imageModalOpen: true },
+    ""
+  );
+}
 
     function closeImageModal() {
       document.getElementById("imageModal").style.display = "none";
