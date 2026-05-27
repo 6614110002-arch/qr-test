@@ -154,6 +154,31 @@
       pointer-events: none;
     }
 
+    .stair-btn {
+      position: absolute;
+      width: 45px;
+      height: 45px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      z-index: 8;
+      padding: 0;
+
+      transform: translate(-50%, -100%);
+    }
+
+    .stair-btn:hover {
+      transform:
+        translate(-50%, -100%) scale(1.08);
+    }
+
+    .stair-icon {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
     /* second popup */
     #imageModal {
       z-index: 2000;
@@ -234,7 +259,7 @@
                 left: "62%"
               }
             ],
-            
+
 
             eyes: [
               {
@@ -266,6 +291,25 @@
           {
             image: "images/FLG.gif",
 
+            stairs: [
+              {
+                top: "12%",
+                left: "72%",
+
+                popupMap: {
+                  image: "images/FLRed.gif",
+
+                  eyes: [
+                    {
+                      top: "45%",
+                      left: "56%",
+                      popup: "images/red-detail2.jpg"
+                    }
+                  ]
+                }
+              }
+            ],
+
             pins: [
               {
                 top: "95%",
@@ -283,18 +327,6 @@
                 top: "80%",
                 left: "43%",
                 popup: "images/hall.png"
-              }
-            ]
-          },
-
-          {
-            image: "images/FLRed.gif",
-
-            eyes: [
-              {
-                top: "45%",
-                left: "56%",
-                popup: "images/red-detail2.jpg"
               }
             ]
           }
@@ -444,7 +476,83 @@
       }
     };
 
+    function openMapPopup(index) {
+
+      const map =
+        window.currentStairMaps[index];
+
+      let html = `
+  <div class="image-container">
+
+    <img
+      src="${map.image}"
+      class="route-image"
+    >
+`;
+
+      /* eyes inside popup map */
+      if (map.eyes) {
+
+        map.eyes.forEach(eye => {
+
+          html += `
+    <button
+      class="eye-btn"
+      onclick="openImageModal('${eye.popup}')"
+      style="
+        top:${eye.top};
+        left:${eye.left};
+      "
+    >
+      <img
+        src="images/searching.png"
+        style="
+          width:50px;
+          height:50px;
+          object-fit:contain;
+          pointer-events:none;
+        "
+      >
+    </button>
+    `;
+        });
+      }
+
+      /* pins inside popup map */
+      if (map.pins) {
+
+        map.pins.forEach(pin => {
+
+          html += `
+    <img
+      src="images/location.png"
+      class="map-pin"
+      style="
+        top:${pin.top};
+        left:${pin.left};
+      "
+    >
+    `;
+        });
+      }
+
+      html += `</div>`;
+
+      document.getElementById(
+        "result"
+      ).innerHTML = html;
+
+      history.pushState(
+        { mapPopupOpen: true },
+        ""
+      );
+
+    }
+
+
+
     function show(key) {
+
 
       const route = routes[key];
 
@@ -491,6 +599,34 @@
             });
           }
 
+          if (imgObj.stairs) {
+
+            imgObj.stairs.forEach((stair, index) => {
+
+              window.currentStairMaps =
+                window.currentStairMaps || {};
+
+              window.currentStairMaps[index] =
+                stair.popupMap;
+
+              html += `
+<button
+class="stair-btn"
+onclick="openMapPopup(${index})"
+style="
+  top:${stair.top};
+  left:${stair.left};
+"
+>
+<img
+  src="images/stairs.png"
+  class="stair-icon"
+>
+</button>
+`;
+            });
+          }
+
           if (imgObj.eyes) {
 
             imgObj.eyes.forEach(eye => {
@@ -534,8 +670,20 @@
     }
 
     function openImageModal(imgSrc) {
-      document.getElementById("popupImage").src = imgSrc;
-      document.getElementById("imageModal").style.display = "block";
+
+      document.getElementById(
+        "popupImage"
+      ).src = imgSrc;
+
+      document.getElementById(
+        "imageModal"
+      ).style.display =
+        "block";
+
+      history.pushState(
+        { imageModalOpen: true },
+        ""
+      );
     }
 
     function closeImageModal() {
@@ -550,38 +698,49 @@
       }
     }
 
-    window.onpopstate = function () {
+    window.onpopstate =
+      function () {
 
-      const imageModal =
-        document.getElementById(
-          "imageModal"
-        );
+        const imageModal =
+          document.getElementById(
+            "imageModal"
+          );
 
-      const mainModal =
-        document.getElementById(
-          "myModal"
-        );
+        const mainModal =
+          document.getElementById(
+            "myModal"
+          );
 
-      /* first close image popup */
-      if (
-        imageModal.style.display ===
-        "block"
-      ) {
+        /* close image popup first */
+        if (
+          imageModal.style.display
+          === "block"
+        ) {
 
-        closeImageModal();
-        return;
-      }
+          closeImageModal();
+          return;
+        }
 
-      /* then close main popup */
-      if (
-        mainModal.style.display ===
-        "block"
-      ) {
+        /* close map popup */
+        if (
+          history.state &&
+          history.state.mapPopupOpen
+        ) {
 
-        closeModal(true);
-        return;
-      }
-    };
+          closeModal(true);
+          return;
+        }
+
+        /* close main modal */
+        if (
+          mainModal.style.display
+          === "block"
+        ) {
+
+          closeModal(true);
+          return;
+        }
+      };
 
     window.onclick = function (event) {
 
