@@ -81,15 +81,10 @@
       position: absolute;
       right: 12px;
       top: -8px;
-      /* move upward above picture */
-
       font-size: 40px;
       font-weight: bold;
-
       color: red;
-      /* red X */
       cursor: pointer;
-
       line-height: 1;
       z-index: 9999;
     }
@@ -124,7 +119,6 @@
       display: block;
     }
 
-    /* Eye icon */
     .eye-btn {
       position: absolute;
       width: 45px;
@@ -135,7 +129,6 @@
       cursor: pointer;
       z-index: 5;
       padding: 0px;
-
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
@@ -147,10 +140,8 @@
       position: absolute;
       width: 38px;
       height: 38px;
-
       transform: translate(-50%, -100%);
       z-index: 9;
-
       pointer-events: none;
     }
 
@@ -163,13 +154,11 @@
       cursor: pointer;
       z-index: 8;
       padding: 0;
-
       transform: translate(-50%, -100%);
     }
 
     .stair-btn:hover {
-      transform:
-        translate(-50%, -100%) scale(1.08);
+      transform: translate(-50%, -100%) scale(1.08);
     }
 
     .stair-icon {
@@ -179,7 +168,6 @@
       pointer-events: none;
     }
 
-    /* second popup */
     #imageModal {
       z-index: 2000;
     }
@@ -230,12 +218,19 @@
     </div>
   </div>
 
-  <!-- IMAGE POPUP -->
+  <!-- IMAGE POPUP (from main modal eye) -->
   <div id="imageModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeImageModal()">&times;</span>
-
       <img id="popupImage" src="">
+    </div>
+  </div>
+
+  <!-- DEEP IMAGE POPUP (from stair map eye) -->
+  <div id="deepImageModal" class="modal" style="z-index:3000;">
+    <div class="modal-content">
+      <span class="close" onclick="closeDeepImageModal()">&times;</span>
+      <img id="deepPopupImage" src="" style="width:100%;border-radius:10px;display:block;">
     </div>
   </div>
 
@@ -248,30 +243,15 @@
           "เดินไปยังห้องเก็บสำนวนคดีดำ",
           "อยู่ชั้น 1"
         ],
-
         images: [
           {
             image: "images/FL1GIF.gif",
-
             pins: [
-              {
-                top: "90%",
-                left: "62%"
-              }
+              { top: "90%", left: "62%" }
             ],
-
-
             eyes: [
-              {
-                top: "12%",
-                left: "43%",
-                popup: "images/black-detail.jpg"
-              },
-              {
-                top: "75%",
-                left: "43%",
-                popup: "images/hall.png"
-              }
+              { top: "12%", left: "43%", popup: "images/black-detail.jpg" },
+              { top: "75%", left: "43%", popup: "images/hall.png" }
             ]
           }
         ]
@@ -285,49 +265,27 @@
           "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"
         ],
         note: "❗ ใช้ลิฟต์ลานจอดรถ",
-
         images: [
-
           {
             image: "images/FLG.gif",
-
             stairs: [
               {
                 top: "12%",
                 left: "72%",
-
                 popupMap: {
                   image: "images/FLRed.gif",
-
                   eyes: [
-                    {
-                      top: "45%",
-                      left: "56%",
-                      popup: "images/red-detail2.jpg"
-                    }
+                    { top: "45%", left: "56%", popup: "images/red-detail2.jpg" }
                   ]
                 }
               }
             ],
-
             pins: [
-              {
-                top: "95%",
-                left: "62%"
-              }
+              { top: "95%", left: "62%" }
             ],
-
             eyes: [
-              {
-                top: "14%",
-                left: "43%",
-                popup: "images/ERed.jpg"
-              },
-              {
-                top: "80%",
-                left: "43%",
-                popup: "images/hall.png"
-              }
+              { top: "14%", left: "43%", popup: "images/ERed.jpg" },
+              { top: "80%", left: "43%", popup: "images/hall.png" }
             ]
           }
         ]
@@ -341,42 +299,21 @@
           "ออกจากลิฟต์ เลี้ยวซ้าย"
         ],
         note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
-
         images: [
-
           {
             image: "images/FLUp.gif",
-
             pins: [
-              {
-                top: "90%",
-                left: "62%"
-              }
+              { top: "90%", left: "62%" }
             ],
-
             eyes: [
-              {
-                top: "55%",
-                left: "50%",
-                popup: "images/court-detail1.jpg"
-              }
+              { top: "55%", left: "50%", popup: "images/court-detail1.jpg" }
             ]
           },
-
           {
             image: "images/Fl2.gif",
-
             eyes: [
-              {
-                top: "79%",
-                left: "46%",
-                popup: "images/front_of_admin.jpg"
-              },
-              {
-                top: "81%",
-                left: "56%",
-                popup: "images/front_of_admin2.png"
-              }
+              { top: "79%", left: "46%", popup: "images/front_of_admin.jpg" },
+              { top: "81%", left: "56%", popup: "images/front_of_admin2.png" }
             ]
           }
         ]
@@ -391,42 +328,21 @@
           "เดินตามป้าย"
         ],
         note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
-
         images: [
-
           {
             image: "images/Fl1up.gif",
-
             pins: [
-              {
-                top: "95%",
-                left: "65%"
-              }
+              { top: "95%", left: "65%" }
             ],
-
             eyes: [
-              {
-                top: "55%",
-                left: "43%",
-                popup: "images/court-detail1.jpg"
-              }
+              { top: "55%", left: "43%", popup: "images/court-detail1.jpg" }
             ]
           },
-
           {
             image: "images/FL5.gif",
-
             eyes: [
-              {
-                top: "36%",
-                left: "79%",
-                popup: "images/F5E.jpg"
-              },
-              {
-                top: "77%",
-                left: "46%",
-                popup: "images/F5E2.jpg"
-              }
+              { top: "36%", left: "79%", popup: "images/F5E.jpg" },
+              { top: "77%", left: "46%", popup: "images/F5E2.jpg" }
             ]
           }
         ]
@@ -439,130 +355,59 @@
           "ขึ้นไปชั้น 8"
         ],
         note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ",
-
         images: [
-
           {
             image: "images/Fl1up.gif",
-
             pins: [
-              {
-                top: "95%",
-                left: "65%"
-              }
+              { top: "95%", left: "65%" }
             ],
-
             eyes: [
-              {
-                top: "55%",
-                left: "43%",
-                popup: "images/court-detail1.jpg"
-              }
+              { top: "55%", left: "43%", popup: "images/court-detail1.jpg" }
             ]
           },
-
           {
             image: "images/FL8.gif",
-
             eyes: [
-              {
-                top: "80%",
-                left: "46%",
-                popup: "images/detail2.jpg"
-              }
+              { top: "80%", left: "46%", popup: "images/detail2.jpg" }
             ]
           }
         ]
       }
     };
 
-    function openMapPopup(index) {
+    // ─── state tracking ───────────────────────────────────────────
+    // Instead of relying on history.state values after a pop (which
+    // are already gone), we track what is currently visible ourselves.
+    //
+    // Levels:
+    //   0 = nothing open  (base page)
+    //   1 = main modal open
+    //   2 = stair map open (inside main modal)
+    //   3 = image popup open
+    //
+    let uiLevel = 0;
+    let currentRoute = null;
 
-      const map =
-        window.currentStairMaps[index];
-
-      let html = `
-  <div class="image-container">
-
-    <img
-      src="${map.image}"
-      class="route-image"
-    >
-`;
-
-      /* eyes inside popup map */
-      if (map.eyes) {
-
-        map.eyes.forEach(eye => {
-
-          html += `
-    <button
-      class="eye-btn"
-      onclick="openImageModal('${eye.popup}')"
-      style="
-        top:${eye.top};
-        left:${eye.left};
-      "
-    >
-      <img
-        src="images/searching.png"
-        style="
-          width:50px;
-          height:50px;
-          object-fit:contain;
-          pointer-events:none;
-        "
-      >
-    </button>
-    `;
-        });
-      }
-
-      /* pins inside popup map */
-      if (map.pins) {
-
-        map.pins.forEach(pin => {
-
-          html += `
-    <img
-      src="images/location.png"
-      class="map-pin"
-      style="
-        top:${pin.top};
-        left:${pin.left};
-      "
-    >
-    `;
-        });
-      }
-
-      html += `</div>`;
-
-      document.getElementById(
-        "result"
-      ).innerHTML = html;
-
-      history.pushState(
-        { mapPopupOpen: true },
-        ""
-      );
-
+    // ─── helpers ──────────────────────────────────────────────────
+    function pushLevel(level) {
+      uiLevel = level;
+      history.pushState({ uiLevel: level }, "");
     }
 
-
-
+    // ─── show main modal ─────────────────────────────────────────
     function show(key) {
+      currentRoute = key;
+      renderMainModal(key);
+      document.getElementById("myModal").style.display = "block";
+      pushLevel(1);
+    }
 
-
+    function renderMainModal(key) {
       const route = routes[key];
+      window.currentStairMaps = {};
 
-      let html =
-        `<h3>🧭 ไป: ${route.title}</h3><ol>`;
-
-      route.steps.forEach(step => {
-        html += `<li>${step}</li>`;
-      });
-
+      let html = `<h3>🧭 ไป: ${route.title}</h3><ol>`;
+      route.steps.forEach(step => { html += `<li>${step}</li>`; });
       html += "</ol>";
 
       if (route.note) {
@@ -570,193 +415,137 @@
       }
 
       if (route.images) {
-
         route.images.forEach(imgObj => {
+          html += `<div class="image-container">
+            <img src="${imgObj.image}" class="route-image">`;
 
-          html += `
-    <div class="image-container">
+          (imgObj.pins || []).forEach(pin => {
+            html += `<img src="images/location.png" class="map-pin"
+              style="top:${pin.top};left:${pin.left};">`;
+          });
 
-      <img
-        src="${imgObj.image}"
-        class="route-image"
-      >
-    `;
+          (imgObj.stairs || []).forEach((stair, index) => {
+            window.currentStairMaps[index] = stair.popupMap;
+            html += `
+              <button class="stair-btn" onclick="openMapPopup(${index})"
+                style="top:${stair.top};left:${stair.left};">
+                <img src="images/stairs.png" class="stair-icon">
+              </button>`;
+          });
 
-          if (imgObj.pins) {
-
-            imgObj.pins.forEach(pin => {
-
-              html += `
-  <img
-    src="images/location.png"
-    class="map-pin"
-    style="
-      top:${pin.top};
-      left:${pin.left};
-    "
-  >
-  `;
-            });
-          }
-
-          if (imgObj.stairs) {
-
-            imgObj.stairs.forEach((stair, index) => {
-
-              window.currentStairMaps =
-                window.currentStairMaps || {};
-
-              window.currentStairMaps[index] =
-                stair.popupMap;
-
-              html += `
-<button
-class="stair-btn"
-onclick="openMapPopup(${index})"
-style="
-  top:${stair.top};
-  left:${stair.left};
-"
->
-<img
-  src="images/stairs.png"
-  class="stair-icon"
->
-</button>
-`;
-            });
-          }
-
-          if (imgObj.eyes) {
-
-            imgObj.eyes.forEach(eye => {
-
-              html += `
-        <button
-          class="eye-btn"
-          onclick="openImageModal('${eye.popup}')"
-          style="
-            top:${eye.top};
-            left:${eye.left};
-          "
-        >
-          <img
-            src="images/searching.png"
-            style="
-              width:50px;
-              height:50px;
-              object-fit:contain;
-              pointer-events:none;
-            "
-          >
-        </button>
-        `;
-            });
-          }
+          (imgObj.eyes || []).forEach(eye => {
+            html += `
+              <button class="eye-btn" onclick="openDeepImageModal('${eye.popup}')"
+                style="top:${eye.top};left:${eye.left};">
+                <img src="images/searching.png"
+                  style="width:50px;height:50px;object-fit:contain;pointer-events:none;">
+              </button>`;
+          });
 
           html += `</div>`;
         });
       }
 
       document.getElementById("result").innerHTML = html;
-
-      document.getElementById("myModal").style.display =
-        "block";
-
-      history.pushState(
-        { modalOpen: true },
-        ""
-      );
     }
 
+    // ─── stair map popup ─────────────────────────────────────────
+    // Works exactly like openImageModal — opens in #imageModal so
+    // the back button just hides that modal, no content-swap needed.
+    function openMapPopup(index) {
+      const map = window.currentStairMaps[index];
+
+      // Build a mini HTML page inside the image modal
+      const modalContent = document.querySelector("#imageModal .modal-content");
+
+      // Clear previous content and rebuild
+      modalContent.innerHTML = `
+        <span class="close" onclick="closeImageModal()">&times;</span>
+        <div class="image-container" style="position:relative;">
+          <img src="${map.image}" class="route-image">
+          ${(map.pins || []).map(pin => `
+            <img src="images/location.png" class="map-pin"
+              style="top:${pin.top};left:${pin.left};">
+          `).join("")}
+          ${(map.eyes || []).map(eye => `
+            <button class="eye-btn" onclick="openDeepImageModal('${eye.popup}')"
+              style="top:${eye.top};left:${eye.left};">
+              <img src="images/searching.png"
+                style="width:50px;height:50px;object-fit:contain;pointer-events:none;">
+            </button>
+          `).join("")}
+        </div>`;
+
+      document.getElementById("imageModal").style.display = "block";
+      pushLevel(2);
+    }
+
+    // ─── image popup ─────────────────────────────────────────────
     function openImageModal(imgSrc) {
+      // Restore the simple img-only layout for plain image popups
+      const modalContent = document.querySelector("#imageModal .modal-content");
+      modalContent.innerHTML = `
+        <span class="close" onclick="closeImageModal()">&times;</span>
+        <img id="popupImage" src="${imgSrc}" style="width:100%;border-radius:10px;display:block;">`;
 
-      document.getElementById(
-        "popupImage"
-      ).src = imgSrc;
-
-      document.getElementById(
-        "imageModal"
-      ).style.display =
-        "block";
-
-      history.pushState(
-        { imageModalOpen: true },
-        ""
-      );
+      document.getElementById("imageModal").style.display = "block";
+      pushLevel(3);
     }
 
     function closeImageModal() {
       document.getElementById("imageModal").style.display = "none";
     }
 
-    function closeModal(isPopState = false) {
-      document.getElementById("myModal").style.display = "none";
-
-      if (!isPopState && history.state && history.state.modalOpen) {
-        history.back();
-      }
+    function openDeepImageModal(imgSrc) {
+      document.getElementById("deepPopupImage").src = imgSrc;
+      document.getElementById("deepImageModal").style.display = "block";
+      pushLevel(3);
     }
 
-    window.onpopstate =
-      function () {
+    function closeDeepImageModal() {
+      document.getElementById("deepImageModal").style.display = "none";
+    }
 
-        const imageModal =
-          document.getElementById(
-            "imageModal"
-          );
+    // ─── close main modal ─────────────────────────────────────────
+    function closeModal() {
+      document.getElementById("myModal").style.display = "none";
+      uiLevel = 0;
+      // push a clean base state so the page doesn't navigate away
+      history.pushState({ uiLevel: 0 }, "");
+    }
 
-        const mainModal =
-          document.getElementById(
-            "myModal"
-          );
+    // ─── back button handler ──────────────────────────────────────
+    window.onpopstate = function () {
+      if (uiLevel === 3) {
+        // image opened from inside stair map — close deep modal, stay on stair map
+        closeDeepImageModal();
+        uiLevel = 2;
+      } else if (uiLevel === 2) {
+        // stair map open — close it, stay on main modal
+        closeImageModal();
+        uiLevel = 1;
+      } else if (uiLevel === 1) {
+        // main modal open — close it
+        document.getElementById("myModal").style.display = "none";
+        uiLevel = 0;
+      }
+    };
 
-        /* close image popup first */
-        if (
-          imageModal.style.display
-          === "block"
-        ) {
-
-          closeImageModal();
-          return;
-        }
-
-        /* close map popup */
-        if (
-          history.state &&
-          history.state.mapPopupOpen
-        ) {
-
-          closeModal(true);
-          return;
-        }
-
-        /* close main modal */
-        if (
-          mainModal.style.display
-          === "block"
-        ) {
-
-          closeModal(true);
-          return;
-        }
-      };
-
+    // ─── click-outside to close ───────────────────────────────────
     window.onclick = function (event) {
-
       const modal = document.getElementById("myModal");
       const imageModal = document.getElementById("imageModal");
+      const deepImageModal = document.getElementById("deepImageModal");
 
-      if (event.target == modal) {
-        closeModal();
+      if (event.target === deepImageModal) {
+        history.back();
+      } else if (event.target === imageModal) {
+        history.back();
+      } else if (event.target === modal) {
+        history.back();
       }
-
-      if (event.target == imageModal) {
-        closeImageModal();
-      }
-    }
+    };
   </script>
 
 </body>
-
 </html>
