@@ -186,6 +186,16 @@
       justify-content: center;
       gap: 8px;
     }
+
+    /* ── Live tracking entry button (inside route modal) ─────── */
+    .track-btn {
+      background: linear-gradient(135deg, #1f5c3a, #3fae6e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
   </style>
 </head>
 
@@ -445,6 +455,12 @@
           html += `</div>`;
         });
       }
+
+      // ── Live tracking entry: pass the selected destination key via URL ──
+      html += `
+        <button class="track-btn" onclick="window.location.href='tracking.html?dest=${key}'">
+          🟣 เริ่มเดินตามตำแหน่งจริง (Dead Reckoning)
+        </button>`;
 
       document.getElementById("result").innerHTML = html;
     }
