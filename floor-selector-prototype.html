@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>ทดลอง: Floor Selector UI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: system-ui, "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    background: #f4f5f7;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .phone {
+    max-width: 420px;
+    margin: 0 auto;
+    height: 100vh;
+    background: #eef0f3;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Top bar ─────────────────────────────────────── */
+  .topbar {
+    background: white;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    z-index: 5;
+  }
+  .topbar .title { font-weight: 600; font-size: 16px; color: #1a1a2e; }
+  .topbar .badge {
+    font-size: 11px;
+    background: #fff3cd;
+    color: #8a6d1f;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ── Map area ────────────────────────────────────── */
+  .map-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #f7f8fa;
+  }
+
+  .map-svg-wrap {
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.2s ease;
+  }
+  .map-svg-wrap.switching { opacity: 0.3; }
+
+  svg.floorplan { width: 100%; height: 100%; display: block; }
+
+  model-viewer.floor-3d {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #2b2b35;
+    --poster-color: transparent;
+  }
+
+  .badge-3d {
+    position: absolute;
+    left: 12px;
+    top: 16px;
+    background: linear-gradient(135deg, #5b4fcf, #8b7ff0);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 20px;
+    z-index: 4;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .badge-2d {
+    position: absolute;
+    left: 12px;
+    top: 16px;
+    background: white;
+    color: #888;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    z-index: 4;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .room {
+    fill: #bfe3cf;
+    stroke: #8fcaa9;
+    stroke-width: 1;
+    transition: fill 0.15s;
+  }
+  .room.destination { fill: #d8e3ff; stroke: #8fa8e8; cursor: pointer; }
+  .room.destination:hover { fill: #c2d4ff; }
+  .room.start { fill: #ffe0b3; stroke: #e8a23a; }
+
+  .corridor { fill: #ffffff; stroke: #e3e4e8; stroke-width: 1; }
+
+  .pin {
+    cursor: pointer;
+  }
+  .pin circle { fill: #5b4fcf; stroke: white; stroke-width: 2; }
+  .pin text { fill: white; font-size: 9px; font-weight: 700; text-anchor: middle; }
+  .pin.start circle { fill: #e8a23a; }
+
+  .you-are-here {
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse {
+    0% { r: 7; opacity: 1; }
+    70% { r: 16; opacity: 0; }
+    100% { r: 16; opacity: 0; }
+  }
+
+  /* ── Floor selector ──────────────────────────────── */
+  .floor-selector {
+    position: absolute;
+    right: 12px;
+    top: 16px;
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e3e4e8;
+  }
+  .floor-btn {
+    width: 44px;
+    height: 40px;
+    border: none;
+    background: white;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    position: relative;
+    border-bottom: 1px solid #f0f0f2;
+  }
+  .floor-btn:last-child { border-bottom: none; }
+  .floor-btn.active {
+    background: #5b4fcf;
+    color: white;
+  }
+  .floor-btn .has-dest-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e8503a;
+  }
+  .floor-btn.active .has-dest-dot { background: white; }
+
+  /* ── Bottom sheet ────────────────────────────────── */
+  .sheet {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -2px 14px rgba(0,0,0,0.08);
+    padding: 14px 16px 20px;
+    z-index: 6;
+    max-height: 42vh;
+    overflow-y: auto;
+  }
+  .sheet-handle {
+    width: 36px;
+    height: 4px;
+    background: #d8d8dc;
+    border-radius: 4px;
+    margin: 0 auto 12px;
+  }
+  .sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .sheet-header .back-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #5b4fcf;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: none;
+  }
+  .sheet-header .back-btn.visible { display: inline-block; }
+  .sheet-header h3 { margin: 0; font-size: 15px; color: #1a1a2e; }
+
+  .dest-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 4px;
+    border-bottom: 1px solid #f2f2f4;
+    cursor: pointer;
+  }
+  .dest-item:last-child { border-bottom: none; }
+  .dest-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f0f1f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .dest-info { flex: 1; }
+  .dest-name { font-size: 14px; font-weight: 600; color: #1a1a2e; }
+  .dest-floor-tag {
+    display: inline-block;
+    font-size: 10px;
+    background: #1a1a2e;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 3px;
+  }
+  .dest-arrow { color: #c0c0c8; font-size: 16px; }
+
+  /* steps view */
+  .steps-list {
+    padding-left: 18px;
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.7;
+  }
+  .note-box {
+    background: #fff3cd;
+    color: #8a6d1f;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+
+  .empty-floor-msg {
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    padding: 30px 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="topbar">
+    <div class="title">📍 ระบบนำทางศาล</div>
+    <div class="badge">ทดลอง UI</div>
+  </div>
+
+  <div class="map-area">
+    <div class="map-svg-wrap" id="mapWrap"></div>
+
+    <div class="floor-selector" id="floorSelector"></div>
+  </div>
+
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <button class="back-btn" id="backBtn" onclick="showDestinationList()">‹ กลับ</button>
+      <h3 id="sheetTitle">เลือกปลายทาง</h3>
+      <span></span>
+    </div>
+    <div id="sheetBody"></div>
+  </div>
+
+</div>
+
+<script>
+  // ───────────────────────────────────────────────────────────
+  // Data: 5 floors that actually have destinations (per project scope)
+  // ───────────────────────────────────────────────────────────
+  const floors = ["8", "5", "2", "1", "B"]; // top to bottom in selector
+
+  const destinations = {
+    "1":  { id: "black",     name: "ห้องเก็บสำนวนคดีดำ", icon: "📂", x: 150, y: 230 },
+    "B":  { id: "red",       name: "ห้องเก็บสำนวนคดีแดง", icon: "📂", x: 180, y: 200 },
+    "2":  { id: "court",     name: "ศูนย์หน้าบัลลังก์",    icon: "⚖️", x: 200, y: 160 },
+    "5":  { id: "officer",   name: "เจ้าพนักงานคดี",      icon: "👨‍💼", x: 170, y: 190 },
+    "8":  { id: "mediation", name: "ศูนย์ไกล่เกลี่ย",      icon: "🤝", x: 190, y: 210 },
+  };
+
+  const routeSteps = {
+    black:     { steps: ["เดินไปยังห้องเก็บสำนวนคดีดำ", "อยู่ชั้น 1"], note: null },
+    red:       { steps: ["ไปลิฟต์ลานจอดรถ (หรือใช้บันไดลงได้)", "ลงไปชั้น B", "ไปห้องเก็บสำนวนคดีแดง และศูนย์คัดถ่าย"], note: "❗ ใช้ลิฟต์ลานจอดรถ" },
+    court:     { steps: ["ใช้ลิฟต์อาคารหลัก", "ขึ้นไปชั้น 2", "ออกจากลิฟต์ เลี้ยวซ้าย"], note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ" },
+    officer:   { steps: ["ใช้ลิฟต์อาคารหลัก", "ขึ้นไปชั้น 5", "ออกจากลิฟต์ เลี้ยวซ้าย", "เดินตามป้าย"], note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ" },
+    mediation: { steps: ["ใช้ลิฟต์อาคารหลัก", "ขึ้นไปชั้น 8"], note: "❗ ห้ามใช้ลิฟต์ลานจอดรถ" },
+  };
+
+  const START_FLOOR = "1";
+  let currentFloor = START_FLOOR;
+
+  // Only floor 1 has an exported .glb right now — others fall back to the flat placeholder map
+  const FLOORS_WITH_3D_MODEL = ["1"];
+  const MODEL_PATH = "ศาลแพ่ง_Model.glb";
+
+  // ───────────────────────────────────────────────────────────
+  // Floor selector (right side, like the reference screenshot)
+  // ───────────────────────────────────────────────────────────
+  function renderFloorSelector() {
+    const el = document.getElementById("floorSelector");
+    el.innerHTML = "";
+    floors.forEach(f => {
+      const btn = document.createElement("button");
+      btn.className = "floor-btn" + (f === currentFloor ? " active" : "");
+      btn.textContent = f;
+      btn.onclick = () => selectFloor(f);
+      if (destinations[f]) {
+        const dot = document.createElement("span");
+        dot.className = "has-dest-dot";
+        btn.appendChild(dot);
+      }
+      el.appendChild(btn);
+    });
+  }
+
+  function selectFloor(f) {
+    currentFloor = f;
+    renderFloorSelector();
+    renderMap();
+  }
+
+  // ───────────────────────────────────────────────────────────
+  // Simple vector-style floor map (placeholder geometry —
+  // swap with real traced floor plans later)
+  // ───────────────────────────────────────────────────────────
+  function renderMap() {
+    const wrap = document.getElementById("mapWrap");
+    wrap.classList.add("switching");
+
+    setTimeout(() => {
+      const dest = destinations[currentFloor];
+      const isStartFloor = currentFloor === START_FLOOR;
+      const has3D = FLOORS_WITH_3D_MODEL.includes(currentFloor);
+
+      if (has3D) {
+        // ── Real 3D model for this floor ──────────────────
+        wrap.innerHTML = `
+          <div class="badge-3d">📐 โมเดล 3 มิติจริง — ชั้น ${currentFloor}</div>
+          <model-viewer
+            id="floorModelViewer"
+            class="floor-3d"
+            src="${MODEL_PATH}"
+            alt="โมเดล 3 มิติชั้น ${currentFloor}"
+            camera-controls
+            shadow-intensity="1"
+            exposure="1"
+            camera-orbit="0deg 60deg auto"
+          ></model-viewer>`;
+
+        const mv = document.getElementById("floorModelViewer");
+        mv.addEventListener("error", () => {
+          wrap.innerHTML = `
+            <div class="badge-3d">📐 โมเดล 3 มิติ — ชั้น ${currentFloor}</div>
+            <div class="empty-floor-msg" style="padding-top:80px;">
+              ❌ ไม่พบไฟล์ ${MODEL_PATH}<br>
+              <small>วางไฟล์ .glb ไว้โฟลเดอร์เดียวกับหน้านี้</small>
+            </div>`;
+        });
+      } else {
+        // ── Flat placeholder map for floors without a 3D model yet ──
+        let pinHtml = "";
+        if (dest) {
+          pinHtml = `
+            <g class="pin" onclick="openDestination('${dest.id}')">
+              <circle cx="${dest.x}" cy="${dest.y}" r="11"></circle>
+              <text x="${dest.x}" y="${dest.y + 3}">${dest.icon === "📂" ? "F" : dest.icon === "⚖️" ? "C" : dest.icon === "👨‍💼" ? "O" : "M"}</text>
+            </g>`;
+        }
+
+        wrap.innerHTML = `
+          <div class="badge-2d">🗺️ แผนที่ 2D (ยังไม่มีโมเดล 3 มิติชั้นนี้)</div>
+          <svg class="floorplan" viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet">
+            <rect x="20" y="20" width="280" height="280" fill="#fafbfc" stroke="#e3e4e8"/>
+            <rect class="corridor" x="20" y="140" width="280" height="40"/>
+            <rect class="room" x="40" y="40" width="100" height="80"/>
+            <rect class="room destination" x="160" y="40" width="120" height="80" onclick="${dest ? `openDestination('${dest.id}')` : ''}"/>
+            <rect class="room" x="40" y="200" width="100" height="80"/>
+            <rect class="room" x="160" y="200" width="120" height="80"/>
+            ${pinHtml}
+          </svg>`;
+      }
+
+      wrap.classList.remove("switching");
+    }, 120);
+  }
+
+  // ───────────────────────────────────────────────────────────
+  // Bottom sheet: destination list <-> route steps
+  // ───────────────────────────────────────────────────────────
+  function showDestinationList() {
+    document.getElementById("sheetTitle").textContent = "เลือกปลายทาง";
+    document.getElementById("backBtn").classList.remove("visible");
+
+    const body = document.getElementById("sheetBody");
+    body.innerHTML = "";
+
+    Object.entries(destinations).forEach(([floor, d]) => {
+      const item = document.createElement("div");
+      item.className = "dest-item";
+      item.onclick = () => openDestination(d.id);
+      item.innerHTML = `
+        <div class="dest-icon">${d.icon}</div>
+        <div class="dest-info">
+          <div class="dest-name">${d.name}</div>
+          <span class="dest-floor-tag">ชั้น ${floor}</span>
+        </div>
+        <div class="dest-arrow">›</div>`;
+      body.appendChild(item);
+    });
+  }
+
+  function openDestination(id) {
+    const entry = Object.entries(destinations).find(([f, d]) => d.id === id);
+    if (!entry) return;
+    const [floor, d] = entry;
+    const route = routeSteps[id];
+
+    selectFloor(floor);
+
+    document.getElementById("sheetTitle").textContent = "🧭 " + d.name;
+    document.getElementById("backBtn").classList.add("visible");
+
+    const body = document.getElementById("sheetBody");
+    let html = `<ol class="steps-list">`;
+    route.steps.forEach(s => html += `<li>${s}</li>`);
+    html += `</ol>`;
+    if (route.note) html += `<div class="note-box">${route.note}</div>`;
+    body.innerHTML = html;
+  }
+
+  // ───────────────────────────────────────────────────────────
+  // Init
+  // ───────────────────────────────────────────────────────────
+  renderFloorSelector();
+  renderMap();
+  showDestinationList();
+</script>
+
+</body>
+</html>
