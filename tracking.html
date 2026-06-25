@@ -104,12 +104,26 @@
   .map-wrap {
     flex: 1;
     position: relative;
-    background:
-      repeating-linear-gradient(0deg, #1a1a24 0, #1a1a24 39px, #23232f 40px),
-      repeating-linear-gradient(90deg, #1a1a24 0, #1a1a24 39px, #23232f 40px);
+    background: #0e0e14;
     overflow: hidden;
   }
-  canvas#mapCanvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  .floor-bg-img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 1;
+    opacity: 0.9;
+  }
+  canvas#mapCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: block;
+    touch-action: none;
+    z-index: 2;
+  }
 
   .start-pill {
     position: absolute;
@@ -225,8 +239,14 @@
       <div class="stat"><div class="val" id="headingVal">0°</div><div class="lbl">ทิศทาง</div></div>
       <div class="stat"><div class="val" id="driftVal">0.0 ม.</div><div class="lbl">Drift ประมาณ</div></div>
     </div>
+    <div class="statusbar" style="border-top:1px solid #2a2a36;">
+      <div class="stat" style="grid-column: 1 / -1;">
+        <div class="val" id="debugDeviation" style="font-size:12px; color:#666;">deviation: 0.0 | shake: 0%</div>
+      </div>
+    </div>
 
     <div class="map-wrap">
+      <img src="images/FL1GIF.gif" alt="แผนผังชั้น 1" class="floor-bg-img" id="floorBgImg">
       <canvas id="mapCanvas"></canvas>
       <div class="start-pill">🏁 เริ่มจาก: ประชาสัมพันธ์ (ชั้น 1)</div>
       <div class="drift-warning" id="driftWarning">⚠️ เดินไกลแล้ว ลองกด Checkpoint เพื่อรีเซ็ตตำแหน่ง</div>
@@ -262,13 +282,23 @@ const DESTINATIONS = {
 };
 
 // ════════════════════════════════════════════════════════════
-// CONFIG
+// Floor image reference point — where "ประชาสัมพันธ์ (ชั้น 1)" sits
+// on images/FL1GIF.gif, as a percentage of the image's width/height.
+// Adjust these two numbers to match the real reception desk position
+// on the actual floor plan image.
 // ════════════════════════════════════════════════════════════
+const START_POINT_PERCENT = { xPct: 43, yPct: 60 };
+let floorImgEl = null;
+let floorImgLoaded = false;
 const STEP_LENGTH_M = 0.7;
-const PIXELS_PER_METER = 25;
-const STEP_THRESHOLD = 1.2;
-const STEP_MIN_INTERVAL_MS = 280;
+const STEP_MIN_INTERVAL_MS = 350;   // ~2.8 steps/sec max — faster than this is not a real walking step
+const STEP_MAX_INTERVAL_FOR_RUN_MS = 200; // below this, treat as noise/shake, not even a fast step
 const DRIFT_WARNING_METERS = 8;
+
+// Step detection tuning — magnitude-based peak detection with a moving baseline
+const ACCEL_HISTORY_SIZE = 12;      // samples used to compute the rolling baseline (gravity + slow drift)
+const STEP_PEAK_THRESHOLD = 2.2;    // how far above the rolling baseline counts as a step peak (tune per device)
+const SHAKE_REJECT_THRESHOLD = 18;  // magnitude swings above this are almost certainly shaking, not walking — ignored
 
 // ════════════════════════════════════════════════════════════
 // STATE
@@ -280,11 +310,15 @@ let stepCount = 0;
 let distanceSinceCheckpoint = 0;
 let pathHistory = [{x: 0, y: 0}];
 let lastStepTime = 0;
-let lastAccelMag = 0;
 let smoothedHeading = 0;
 let stepLog = [];
 let destKey = null;
 let destInfo = null;
+
+// Step detection state
+let accelMagHistory = [];   // rolling window of recent |a| samples, for baseline
+let isAboveThreshold = false; // simple state machine: are we currently in a "peak" region?
+let recentShakeFlags = [];  // tracks whether last few samples looked like shaking
 
 // ════════════════════════════════════════════════════════════
 // READ ?dest= FROM URL (set by index.html)
@@ -358,13 +392,44 @@ function onDeviceMotion(event) {
   if (!acc || acc.x === null) return;
 
   const mag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-  const delta = Math.abs(mag - lastAccelMag);
-  lastAccelMag = mag;
 
+  // ── Maintain rolling baseline (smooths out gravity + slow tilt changes) ──
+  accelMagHistory.push(mag);
+  if (accelMagHistory.length > ACCEL_HISTORY_SIZE) accelMagHistory.shift();
+  const baseline = accelMagHistory.reduce((a, b) => a + b, 0) / accelMagHistory.length;
+  const deviation = mag - baseline;
+
+  // ── Shake rejection: walking produces smooth, bounded oscillation around
+  // gravity (~9.8). Shaking produces large, erratic swings. If recent samples
+  // show extreme deviation, treat this as shaking and ignore it entirely. ──
+  const isLikelyShake = Math.abs(deviation) > SHAKE_REJECT_THRESHOLD;
+  recentShakeFlags.push(isLikelyShake);
+  if (recentShakeFlags.length > ACCEL_HISTORY_SIZE) recentShakeFlags.shift();
+  const shakeRatio = recentShakeFlags.filter(Boolean).length / recentShakeFlags.length;
+
+  if (shakeRatio > 0.3) {
+    // Too much erratic motion recently — likely shaking the phone, not walking.
+    // Reset the peak state so we don't fire a step the moment it calms down.
+    isAboveThreshold = false;
+    return;
+  }
+
+  // ── Peak-detection state machine ──
+  // A step = crossing ABOVE threshold (rising edge), then later crossing back
+  // below it. We only count on the rising edge, and only if enough time has
+  // passed since the last counted step (debounce to realistic walking cadence).
   const now = Date.now();
-  if (delta > STEP_THRESHOLD && (now - lastStepTime) > STEP_MIN_INTERVAL_MS) {
-    lastStepTime = now;
-    registerStep();
+  const timeSinceLastStep = now - lastStepTime;
+
+  if (!isAboveThreshold && deviation > STEP_PEAK_THRESHOLD) {
+    isAboveThreshold = true;
+    if (timeSinceLastStep > STEP_MIN_INTERVAL_MS) {
+      lastStepTime = now;
+      registerStep();
+    }
+  } else if (isAboveThreshold && deviation < STEP_PEAK_THRESHOLD * 0.4) {
+    // Fell back down past a lower hysteresis line — ready to detect the next peak
+    isAboveThreshold = false;
   }
 }
 
@@ -429,11 +494,23 @@ function toggleStepLog() {
 }
 
 // ════════════════════════════════════════════════════════════
-// CANVAS RENDERING
+// CANVAS RENDERING (anchored to the real floor image underneath)
 // ════════════════════════════════════════════════════════════
 function initCanvas() {
   canvas = document.getElementById('mapCanvas');
   ctx = canvas.getContext('2d');
+  floorImgEl = document.getElementById('floorBgImg');
+
+  if (floorImgEl.complete && floorImgEl.naturalWidth > 0) {
+    floorImgLoaded = true;
+  } else {
+    floorImgEl.addEventListener('load', () => { floorImgLoaded = true; });
+    floorImgEl.addEventListener('error', () => {
+      console.warn('ไม่พบ images/FL1GIF.gif — จุดจะขยับบนพื้นหลังเปล่าแทน');
+      floorImgLoaded = false;
+    });
+  }
+
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 }
@@ -445,37 +522,82 @@ function resizeCanvas() {
   canvas.height = wrap.clientHeight;
 }
 
+// Given object-fit: contain, the image is letterboxed inside the wrapper.
+// This computes the actual on-screen rect the image occupies, so we can
+// anchor the start point and movement scale to the real picture, not just
+// the raw canvas bounds.
+function getImageDisplayRect() {
+  const wrapW = canvas.width;
+  const wrapH = canvas.height;
+
+  if (!floorImgLoaded || !floorImgEl.naturalWidth) {
+    // Fallback: treat the whole canvas as the "image" area
+    return { x: 0, y: 0, w: wrapW, h: wrapH };
+  }
+
+  const imgRatio = floorImgEl.naturalWidth / floorImgEl.naturalHeight;
+  const wrapRatio = wrapW / wrapH;
+
+  let drawW, drawH;
+  if (imgRatio > wrapRatio) {
+    drawW = wrapW;
+    drawH = wrapW / imgRatio;
+  } else {
+    drawH = wrapH;
+    drawW = wrapH * imgRatio;
+  }
+
+  return {
+    x: (wrapW - drawW) / 2,
+    y: (wrapH - drawH) / 2,
+    w: drawW,
+    h: drawH,
+  };
+}
+
 function drawLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const originX = canvas.width / 2;
-  const originY = canvas.height / 2;
+  const rect = getImageDisplayRect();
+  // Origin = the reception desk position on the real floor image (in screen px)
+  const originX = rect.x + (START_POINT_PERCENT.xPct / 100) * rect.w;
+  const originY = rect.y + (START_POINT_PERCENT.yPct / 100) * rect.h;
+
+  // Scale movement using the image's own width as the meter reference,
+  // so the dot's motion stays visually proportional to the real floor plan
+  // regardless of screen size. Tune ASSUMED_FLOOR_WIDTH_M to roughly match
+  // the real width (in meters) the floor image represents.
+  const ASSUMED_FLOOR_WIDTH_M = 40;
+  const pxPerMeter = rect.w / ASSUMED_FLOOR_WIDTH_M;
 
   ctx.beginPath();
   ctx.strokeStyle = '#5b4fcf';
   ctx.lineWidth = 3;
   pathHistory.forEach((p, i) => {
-    const sx = originX + p.x * PIXELS_PER_METER;
-    const sy = originY + p.y * PIXELS_PER_METER;
+    const sx = originX + p.x * pxPerMeter;
+    const sy = originY + p.y * pxPerMeter;
     if (i === 0) ctx.moveTo(sx, sy);
     else ctx.lineTo(sx, sy);
   });
   ctx.stroke();
 
-  const startSx = originX + pathHistory[0].x * PIXELS_PER_METER;
-  const startSy = originY + pathHistory[0].y * PIXELS_PER_METER;
+  const startSx = originX + pathHistory[0].x * pxPerMeter;
+  const startSy = originY + pathHistory[0].y * pxPerMeter;
   ctx.beginPath();
   ctx.arc(startSx, startSy, 6, 0, Math.PI * 2);
   ctx.fillStyle = '#e8a23a';
   ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'white';
+  ctx.stroke();
 
-  const curSx = originX + posX * PIXELS_PER_METER;
-  const curSy = originY + posY * PIXELS_PER_METER;
+  const curSx = originX + posX * pxPerMeter;
+  const curSy = originY + posY * pxPerMeter;
 
   const pulseR = 12 + 6 * Math.sin(Date.now() / 300);
   ctx.beginPath();
   ctx.arc(curSx, curSy, pulseR, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(91, 79, 207, 0.25)';
+  ctx.fillStyle = 'rgba(91, 79, 207, 0.3)';
   ctx.fill();
 
   const rad = (heading * Math.PI) / 180;
