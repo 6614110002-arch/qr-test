@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>กำลังนำทาง — Dead Reckoning</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: system-ui, "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    background: #15151c;
+    color: #eee;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Permission gate ─────────────────────────────────── */
+  .gate {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    gap: 14px;
+  }
+  .gate h2 { margin: 0; font-size: 18px; }
+  .gate p { color: #999; font-size: 13px; line-height: 1.6; margin: 0; }
+  .gate .dest-pill {
+    background: #2a2a38;
+    border: 1px solid #3a3a4a;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #c8c4f5;
+  }
+  .gate button {
+    margin-top: 10px;
+    background: #5b4fcf;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .gate .back-link {
+    margin-top: 4px;
+    color: #888;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .gate .err { color: #e8503a; font-size: 12px; margin-top: 6px; min-height: 14px; }
+
+  /* ── Top bar ──────────────────────────────────────────── */
+  .topbar {
+    background: #1e1e29;
+    padding: 12px 16px;
+    border-bottom: 1px solid #2a2a36;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .topbar .dest-label { font-size: 14px; font-weight: 700; }
+  .topbar .dest-floor {
+    font-size: 11px;
+    background: #5b4fcf;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .statusbar {
+    background: #1e1e29;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    border-bottom: 1px solid #2a2a36;
+    font-size: 11px;
+  }
+  .stat { text-align: center; }
+  .stat .val { font-size: 16px; font-weight: 700; color: #8b7ff0; }
+  .stat .lbl { color: #777; margin-top: 2px; }
+
+  /* ── Map area ─────────────────────────────────────────── */
+  .map-wrap {
+    flex: 1;
+    position: relative;
+    background:
+      repeating-linear-gradient(0deg, #1a1a24 0, #1a1a24 39px, #23232f 40px),
+      repeating-linear-gradient(90deg, #1a1a24 0, #1a1a24 39px, #23232f 40px);
+    overflow: hidden;
+  }
+  canvas#mapCanvas { width: 100%; height: 100%; display: block; touch-action: none; }
+
+  .start-pill {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #e8a23a;
+    color: #2a1a00;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+  .drift-warning {
+    position: absolute;
+    top: 42px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #e8503a;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .drift-warning.show { display: block; }
+
+  .checkpoint-toast {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f5c3a;
+    color: #c8f0d8;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .checkpoint-toast.show { display: block; animation: fadeOut 2s forwards; }
+  @keyframes fadeOut { 0%, 60% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* ── Bottom controls ──────────────────────────────────── */
+  .controls {
+    background: #1e1e29;
+    padding: 14px 16px 20px;
+    border-top: 1px solid #2a2a36;
+  }
+  .checkpoint-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .checkpoint-btn {
+    flex: 1;
+    background: #2a2a38;
+    color: #ccc;
+    border: 1px solid #3a3a4a;
+    padding: 10px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .checkpoint-btn:active { background: #1f5c3a; border-color: #1f5c3a; color: white; }
+
+  .reset-row { display: flex; gap: 8px; }
+  .reset-btn {
+    flex: 1;
+    background: none;
+    border: 1px solid #3a3a4a;
+    color: #999;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .calib-note { font-size: 11px; color: #666; text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ══════════════ Permission / start gate ══════════════ -->
+  <div class="gate" id="gate">
+    <h2>🚶 เริ่มติดตามตำแหน่งจริง</h2>
+    <div class="dest-pill" id="destPill">ปลายทาง: —</div>
+    <p>
+      ระบบจะอ่าน accelerometer และ compass จากมือถือ เพื่อนับก้าวเดิน
+      ประมาณทิศทาง และขยับจุดบนแผนที่แบบสด เริ่มจากจุด <b>ประชาสัมพันธ์ (ชั้น 1)</b><br><br>
+      ถือมือถือไว้ในมือ (ไม่ใช่ในกระเป๋า) แล้วเดินไปทางปลายทางที่เลือก
+    </p>
+    <button id="startBtn" onclick="requestPermissionsAndStart()">เริ่มติดตามตำแหน่ง</button>
+    <button class="back-link" onclick="window.location.href='index.html'">‹ กลับไปหน้าเลือกปลายทาง</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+
+  <!-- ══════════════ Main tracking UI ══════════════ -->
+  <div id="mainUI" style="display:none; flex:1; flex-direction:column;">
+
+    <div class="topbar">
+      <div class="dest-label" id="topDestLabel">🧭 กำลังไป: —</div>
+      <div class="dest-floor" id="topDestFloor">ชั้น —</div>
+    </div>
+
+    <div class="statusbar">
+      <div class="stat"><div class="val" id="stepCount">0</div><div class="lbl">ก้าว</div></div>
+      <div class="stat"><div class="val" id="headingVal">0°</div><div class="lbl">ทิศทาง</div></div>
+      <div class="stat"><div class="val" id="driftVal">0.0 ม.</div><div class="lbl">Drift ประมาณ</div></div>
+    </div>
+
+    <div class="map-wrap">
+      <canvas id="mapCanvas"></canvas>
+      <div class="start-pill">🏁 เริ่มจาก: ประชาสัมพันธ์ (ชั้น 1)</div>
+      <div class="drift-warning" id="driftWarning">⚠️ เดินไกลแล้ว ลองกด Checkpoint เพื่อรีเซ็ตตำแหน่ง</div>
+      <div class="checkpoint-toast" id="checkpointToast">✅ รีเซ็ตตำแหน่งแล้ว</div>
+    </div>
+
+    <div class="controls">
+      <div class="checkpoint-row">
+        <button class="checkpoint-btn" onclick="applyCheckpoint('lift')">🛗 ยืนยัน: ลิฟต์</button>
+        <button class="checkpoint-btn" onclick="applyCheckpoint('junction')">📍 ยืนยัน: ทางแยก</button>
+      </div>
+      <div class="reset-row">
+        <a class="reset-btn" href="index.html">↩ กลับหน้าหลัก</a>
+        <button class="reset-btn" onclick="toggleStepLog()">📋 Log</button>
+      </div>
+      <div class="calib-note">ความยาวก้าวที่ตั้งไว้: <span id="stepLenLabel">0.7</span> ม./ก้าว (ปรับ default ทั่วไป)</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// Destination data — mirrors the route titles/floors in index.html.
+// Keep this object's keys in sync with the `routes` object there.
+// ════════════════════════════════════════════════════════════
+const DESTINATIONS = {
+  black:     { name: "ห้องเก็บสำนวนคดีดำ", floor: "1" },
+  red:       { name: "ห้องเก็บสำนวนคดีแดง", floor: "B" },
+  court:     { name: "ศูนย์หน้าบัลลังก์",    floor: "2" },
+  officer:   { name: "เจ้าพนักงานคดี",      floor: "5" },
+  mediation: { name: "ศูนย์ไกล่เกลี่ย",      floor: "8" },
+};
+
+// ════════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════════
+const STEP_LENGTH_M = 0.7;
+const PIXELS_PER_METER = 25;
+const STEP_THRESHOLD = 1.2;
+const STEP_MIN_INTERVAL_MS = 280;
+const DRIFT_WARNING_METERS = 8;
+
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+let canvas, ctx;
+let posX = 0, posY = 0;
+let heading = 0;
+let stepCount = 0;
+let distanceSinceCheckpoint = 0;
+let pathHistory = [{x: 0, y: 0}];
+let lastStepTime = 0;
+let lastAccelMag = 0;
+let smoothedHeading = 0;
+let stepLog = [];
+let destKey = null;
+let destInfo = null;
+
+// ════════════════════════════════════════════════════════════
+// READ ?dest= FROM URL (set by index.html)
+// ════════════════════════════════════════════════════════════
+function readDestinationFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('dest');
+
+  if (key && DESTINATIONS[key]) {
+    destKey = key;
+    destInfo = DESTINATIONS[key];
+  } else {
+    // No valid ?dest= param — fall back gracefully instead of breaking
+    destKey = null;
+    destInfo = { name: "ไม่ทราบปลายทาง (ไม่มี ?dest= ใน URL)", floor: "?" };
+  }
+
+  document.getElementById('destPill').textContent = 'ปลายทาง: ' + destInfo.name + ' (ชั้น ' + destInfo.floor + ')';
+}
+
+// ════════════════════════════════════════════════════════════
+// PERMISSION + SENSOR SETUP
+// ════════════════════════════════════════════════════════════
+async function requestPermissionsAndStart() {
+  const gateErr = document.getElementById('gateErr');
+  gateErr.textContent = '';
+
+  try {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      const motionPerm = await DeviceMotionEvent.requestPermission();
+      if (motionPerm !== 'granted') {
+        gateErr.textContent = 'ไม่ได้รับสิทธิ์เข้าถึง motion sensor — ต้องอนุญาตเพื่อใช้งาน';
+        return;
+      }
+    }
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      const orientPerm = await DeviceOrientationEvent.requestPermission();
+      if (orientPerm !== 'granted') {
+        gateErr.textContent = 'ไม่ได้รับสิทธิ์เข้าถึง orientation sensor — ต้องอนุญาตเพื่อใช้งาน';
+        return;
+      }
+    }
+  } catch (e) {
+    gateErr.textContent = 'เกิดข้อผิดพลาดขณะขอสิทธิ์: ' + e.message;
+    return;
+  }
+
+  if (!window.DeviceMotionEvent) {
+    gateErr.textContent = 'อุปกรณ์นี้ไม่รองรับ DeviceMotionEvent (ต้องใช้มือถือจริง ไม่ใช่คอมพิวเตอร์)';
+    return;
+  }
+
+  document.getElementById('gate').style.display = 'none';
+  const mainUI = document.getElementById('mainUI');
+  mainUI.style.display = 'flex';
+
+  document.getElementById('topDestLabel').textContent = '🧭 กำลังไป: ' + destInfo.name;
+  document.getElementById('topDestFloor').textContent = 'ชั้น ' + destInfo.floor;
+
+  initCanvas();
+  window.addEventListener('devicemotion', onDeviceMotion, true);
+  window.addEventListener('deviceorientation', onDeviceOrientation, true);
+  requestAnimationFrame(drawLoop);
+}
+
+// ════════════════════════════════════════════════════════════
+// STEP DETECTION
+// ════════════════════════════════════════════════════════════
+function onDeviceMotion(event) {
+  const acc = event.accelerationIncludingGravity;
+  if (!acc || acc.x === null) return;
+
+  const mag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+  const delta = Math.abs(mag - lastAccelMag);
+  lastAccelMag = mag;
+
+  const now = Date.now();
+  if (delta > STEP_THRESHOLD && (now - lastStepTime) > STEP_MIN_INTERVAL_MS) {
+    lastStepTime = now;
+    registerStep();
+  }
+}
+
+function registerStep() {
+  stepCount++;
+  document.getElementById('stepCount').textContent = stepCount;
+
+  const rad = (heading * Math.PI) / 180;
+  const dx = Math.sin(rad) * STEP_LENGTH_M;
+  const dy = -Math.cos(rad) * STEP_LENGTH_M;
+
+  posX += dx;
+  posY += dy;
+  distanceSinceCheckpoint += STEP_LENGTH_M;
+
+  pathHistory.push({x: posX, y: posY});
+  if (pathHistory.length > 500) pathHistory.shift();
+
+  stepLog.push({ step: stepCount, heading: Math.round(heading), x: posX.toFixed(2), y: posY.toFixed(2) });
+
+  document.getElementById('driftVal').textContent = distanceSinceCheckpoint.toFixed(1) + ' ม.';
+  const warning = document.getElementById('driftWarning');
+  if (distanceSinceCheckpoint > DRIFT_WARNING_METERS) warning.classList.add('show');
+  else warning.classList.remove('show');
+}
+
+// ════════════════════════════════════════════════════════════
+// HEADING
+// ════════════════════════════════════════════════════════════
+function onDeviceOrientation(event) {
+  let alpha = event.webkitCompassHeading != null ? event.webkitCompassHeading : event.alpha;
+  if (alpha == null) return;
+
+  const diff = ((alpha - smoothedHeading + 540) % 360) - 180;
+  smoothedHeading += diff * 0.15;
+  smoothedHeading = (smoothedHeading + 360) % 360;
+  heading = smoothedHeading;
+
+  document.getElementById('headingVal').textContent = Math.round(heading) + '°';
+}
+
+// ════════════════════════════════════════════════════════════
+// CHECKPOINT CORRECTION
+// ════════════════════════════════════════════════════════════
+function applyCheckpoint(type) {
+  distanceSinceCheckpoint = 0;
+  document.getElementById('driftVal').textContent = '0.0 ม.';
+  document.getElementById('driftWarning').classList.remove('show');
+
+  const toast = document.getElementById('checkpointToast');
+  toast.textContent = type === 'lift' ? '✅ ยืนยันตำแหน่ง: ลิฟต์ — รีเซ็ต drift แล้ว' : '✅ ยืนยันตำแหน่ง: ทางแยก — รีเซ็ต drift แล้ว';
+  toast.classList.remove('show');
+  requestAnimationFrame(() => toast.classList.add('show'));
+  setTimeout(() => toast.classList.remove('show'), 2000);
+
+  stepLog.push({ checkpoint: type, atStep: stepCount });
+}
+
+function toggleStepLog() {
+  console.log('Step log:', JSON.stringify(stepLog, null, 2));
+  alert('Log พิมพ์ไว้ใน Console แล้ว — ทั้งหมด ' + stepLog.length + ' รายการ');
+}
+
+// ════════════════════════════════════════════════════════════
+// CANVAS RENDERING
+// ════════════════════════════════════════════════════════════
+function initCanvas() {
+  canvas = document.getElementById('mapCanvas');
+  ctx = canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+}
+
+function resizeCanvas() {
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+}
+
+function drawLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const originX = canvas.width / 2;
+  const originY = canvas.height / 2;
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#5b4fcf';
+  ctx.lineWidth = 3;
+  pathHistory.forEach((p, i) => {
+    const sx = originX + p.x * PIXELS_PER_METER;
+    const sy = originY + p.y * PIXELS_PER_METER;
+    if (i === 0) ctx.moveTo(sx, sy);
+    else ctx.lineTo(sx, sy);
+  });
+  ctx.stroke();
+
+  const startSx = originX + pathHistory[0].x * PIXELS_PER_METER;
+  const startSy = originY + pathHistory[0].y * PIXELS_PER_METER;
+  ctx.beginPath();
+  ctx.arc(startSx, startSy, 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#e8a23a';
+  ctx.fill();
+
+  const curSx = originX + posX * PIXELS_PER_METER;
+  const curSy = originY + posY * PIXELS_PER_METER;
+
+  const pulseR = 12 + 6 * Math.sin(Date.now() / 300);
+  ctx.beginPath();
+  ctx.arc(curSx, curSy, pulseR, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(91, 79, 207, 0.25)';
+  ctx.fill();
+
+  const rad = (heading * Math.PI) / 180;
+  const arrowLen = 22;
+  ctx.beginPath();
+  ctx.moveTo(curSx, curSy);
+  ctx.lineTo(curSx + Math.sin(rad) * arrowLen, curSy - Math.cos(rad) * arrowLen);
+  ctx.strokeStyle = '#8b7ff0';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(curSx, curSy, 9, 0, Math.PI * 2);
+  ctx.fillStyle = '#5b4fcf';
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'white';
+  ctx.stroke();
+
+  requestAnimationFrame(drawLoop);
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+readDestinationFromUrl();
+</script>
+
+</body>
+</html>
